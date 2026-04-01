@@ -1,3 +1,70 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #07070f;
+    --surface: #10101c;
+    --surface-raised: #16162a;
+    --border: #1e1e38;
+    --accent: #7c3aed;
+    --accent-hover: #6d28d9;
+    --accent-glow: rgba(124, 58, 237, 0.35);
+    --text: #e8e8f0;
+    --text-muted: #8888aa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--bg);
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--accent-glow);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #4f46e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-border {
+    box-shadow: 0 0 0 1px var(--border), 0 0 24px var(--accent-glow);
+  }
+
+  .surface {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+  }
+}

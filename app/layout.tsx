@@ -1,20 +1,31 @@
 import type { Metadata } from "next";
+import { Space_Grotesk, Inter } from "next/font/google";
+import { AppProvider } from "@/lib/context";
 import "./globals.css";
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-heading",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "KnowFlow",
-  description: "AI-powered knowledge transformer",
+  title: "KnowFlow — Knowledge Transformer",
+  description: "Turn any document into a complete study system with AI.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
-      <body>{children}</body>
+    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`}>
+      <body className="font-body antialiased">
+        <AppProvider>{children}</AppProvider>
+      </body>
     </html>
   );
 }
