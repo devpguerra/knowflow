@@ -187,15 +187,15 @@ export async function callClaude(prompt: string): Promise<unknown> {
 
   const lower = prompt.toLowerCase();
 
-  if (lower.includes("analyze")) {
+  if (lower.startsWith("you are an expert educator. analyze")) {
     return MOCK_ANALYSIS;
   }
 
-  if (lower.includes("generate")) {
+  if (lower.startsWith("you are an expert educator. using the source material")) {
     return MOCK_GENERATED_MATERIALS;
   }
 
-  if (lower.includes("review")) {
+  if (lower.startsWith("you are an expert educator. a student just")) {
     return MOCK_REVIEW_PACK;
   }
 
