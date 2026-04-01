@@ -39,72 +39,93 @@ export default function FlashcardDeck({ flashcards }: Props) {
   const pct = flashcards.length > 0 ? (knownCount / flashcards.length) * 100 : 0;
 
   return (
-    <div className="flex flex-col items-center gap-6 animate-slide-up">
+    <div className="flex flex-col items-center gap-5">
       {/* Progress bar */}
       <div className="w-full max-w-lg">
         <div className="flex justify-between text-xs mb-1.5" style={{ color: "#8888aa" }}>
-          <span>
-            Card {index + 1} of {flashcards.length}
-          </span>
+          <span>Card {index + 1} of {flashcards.length}</span>
           <span>{knownCount} known</span>
         </div>
         <div className="w-full h-1.5 rounded-full" style={{ background: "#1e1e38" }}>
           <div
-            className="h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${pct}%`, background: "linear-gradient(90deg, #7c3aed, #4f46e5)" }}
+            className="h-1.5 rounded-full"
+            style={{
+              width: `${pct}%`,
+              background: "linear-gradient(90deg, #7c3aed, #4f46e5)",
+              transition: "width 0.5s ease",
+            }}
           />
         </div>
       </div>
 
       {/* Flip card */}
       <div
-        className="w-full max-w-lg cursor-pointer"
-        style={{ perspective: "1200px", height: "260px" }}
+        className="w-full max-w-lg cursor-pointer select-none"
+        style={{ perspective: "1400px", height: "260px" }}
         onClick={() => setFlipped((f) => !f)}
+        role="button"
+        aria-label={flipped ? "Show question" : "Reveal answer"}
       >
         <div
-          className="relative w-full h-full transition-transform duration-500"
           style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
             transformStyle: "preserve-3d",
             transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+            transition: "transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1)",
           }}
         >
-          {/* Front */}
+          {/* Front face */}
           <div
-            className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-8 select-none"
             style={{
+              position: "absolute",
+              inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               background: "#10101c",
               border: "1px solid #1e1e38",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              borderRadius: "16px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2rem",
+              boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
             }}
           >
             <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8888aa" }}>
-              Front · {card.concept}
+              {card.concept}
             </p>
             <p className="font-heading text-xl font-semibold text-center leading-snug" style={{ color: "#e8e8f0" }}>
               {card.front}
             </p>
             <p className="text-xs mt-6" style={{ color: "#8888aa" }}>
-              Click to reveal
+              Tap to reveal answer
             </p>
           </div>
 
-          {/* Back */}
+          {/* Back face */}
           <div
-            className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center p-8 select-none"
             style={{
+              position: "absolute",
+              inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
               background: "linear-gradient(135deg, #14102a 0%, #10101c 100%)",
-              border: "1px solid rgba(124,58,237,0.4)",
-              boxShadow: "0 8px 32px rgba(124,58,237,0.15)",
+              border: "1px solid rgba(124,58,237,0.45)",
+              borderRadius: "16px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "2rem",
+              boxShadow: "0 8px 40px rgba(124,58,237,0.18)",
             }}
           >
             <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#a78bfa" }}>
-              Back · {card.difficulty}
+              Answer · {card.difficulty}
             </p>
             <p className="text-base text-center leading-relaxed" style={{ color: "#e8e8f0" }}>
               {card.back}
@@ -126,7 +147,7 @@ export default function FlashcardDeck({ flashcards }: Props) {
 
         <button
           onClick={toggleKnown}
-          className="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-150"
+          className="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-200"
           style={
             isKnown
               ? { background: "rgba(110,231,183,0.15)", border: "1px solid rgba(110,231,183,0.4)", color: "#6ee7b7" }
@@ -146,7 +167,7 @@ export default function FlashcardDeck({ flashcards }: Props) {
         </button>
       </div>
 
-      {/* Difficulty badge */}
+      {/* Concept tag */}
       <span
         className="px-2.5 py-0.5 rounded-full text-xs font-medium"
         style={{
@@ -155,7 +176,7 @@ export default function FlashcardDeck({ flashcards }: Props) {
           color: "#c4b5fd",
         }}
       >
-        {card.difficulty}
+        {card.concept}
       </span>
     </div>
   );

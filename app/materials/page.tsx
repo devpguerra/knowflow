@@ -42,7 +42,39 @@ export default function MaterialsPage() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  if (!materials || !analysis) return null;
+  if (!materials || !analysis) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 page-enter" style={{ background: "#07070f" }}>
+        <div className="text-center max-w-sm">
+          <div
+            className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+            style={{ background: "rgba(124,58,237,0.15)" }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+            </svg>
+          </div>
+          <h2 className="font-heading text-xl font-bold mb-2" style={{ color: "#e8e8f0" }}>
+            No materials yet
+          </h2>
+          <p className="text-sm mb-6" style={{ color: "#8888aa" }}>
+            Upload a document on the home page to generate your study materials.
+          </p>
+          <button
+            onClick={() => router.replace("/")}
+            className="px-6 py-2.5 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
+            style={{
+              background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
+              color: "#fff",
+              boxShadow: "0 0 16px rgba(124,58,237,0.4)",
+            }}
+          >
+            Go to Upload
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ── Export handlers ──────────────────────────────────────────────────────
 
@@ -69,10 +101,10 @@ export default function MaterialsPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{ background: "#07070f" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
       {/* Top bar */}
       <header
-        className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3"
+        className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
           background: "rgba(7,7,15,0.85)",
           borderBottom: "1px solid #1e1e38",
@@ -104,7 +136,7 @@ export default function MaterialsPage() {
             }}
           >
             {exporting ? <Spinner /> : <ExportIcon />}
-            Export
+            <span className="hidden sm:inline">Export</span>
             <Chevron open={exportOpen} />
           </button>
 
@@ -125,7 +157,7 @@ export default function MaterialsPage() {
       </header>
 
       {/* Content */}
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Analysis summary */}
         <ContentMap analysis={analysis} />
 

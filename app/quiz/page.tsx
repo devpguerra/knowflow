@@ -69,10 +69,10 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#07070f" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
       {/* Header */}
       <header
-        className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3"
+        className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
           background: "rgba(7,7,15,0.85)",
           borderBottom: "1px solid #1e1e38",
@@ -92,13 +92,13 @@ export default function QuizPage() {
 
         <div className="flex-1" />
 
-        <span className="text-sm font-medium" style={{ color: "#a78bfa" }}>
+        <span className="hidden sm:inline text-sm font-medium truncate max-w-xs" style={{ color: "#a78bfa" }}>
           {analysis.title.length > 40 ? analysis.title.slice(0, 40) + "…" : analysis.title}
         </span>
       </header>
 
       {/* Content */}
-      <main className="px-4 py-10">
+      <main className="px-3 sm:px-4 py-8 sm:py-10">
         {!result ? (
           <>
             {/* Quiz header */}

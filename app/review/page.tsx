@@ -63,10 +63,10 @@ export default function ReviewPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{ background: "#07070f" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
       {/* Header */}
       <header
-        className="sticky top-0 z-20 flex items-center gap-4 px-6 py-3"
+        className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
           background: "rgba(7,7,15,0.85)",
           borderBottom: "1px solid #1e1e38",
@@ -98,7 +98,7 @@ export default function ReviewPage() {
         </span>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-10 space-y-6">
+      <main className="max-w-2xl mx-auto px-3 sm:px-4 py-8 sm:py-10 space-y-5 sm:space-y-6">
 
         {/* ── REVIEW PHASE ──────────────────────────────────────────────── */}
         {phase === "review" && (

@@ -178,11 +178,10 @@ const MOCK_REVIEW_PACK: ReviewPack = {
   ],
 };
 
-// Drop-in replacement for the real Claude API call.
-// To go live: replace the body of this function with a real fetch to
-// claude-sonnet-4-20250514, add 1 retry on failure, and throw a clear
-// error if JSON parsing fails.
-export async function callClaude(prompt: string): Promise<unknown> {
+// ── Mock implementation ────────────────────────────────────────────────────
+// Used when CLAUDE_MOCK=true in .env.local
+
+async function callClaudeMock(prompt: string): Promise<unknown> {
   await new Promise((resolve) => setTimeout(resolve, 200));
 
   const lower = prompt.toLowerCase();
@@ -190,17 +189,68 @@ export async function callClaude(prompt: string): Promise<unknown> {
   if (lower.startsWith("you are an expert educator. analyze")) {
     return MOCK_ANALYSIS;
   }
-
   if (lower.startsWith("you are an expert educator. using the source material")) {
     return MOCK_GENERATED_MATERIALS;
   }
-
   if (lower.startsWith("you are an expert educator. a student just")) {
     return MOCK_REVIEW_PACK;
   }
 
   throw new Error(
-    `callClaude: could not determine response type from prompt. ` +
-      `Prompt must include "analyze", "generate", or "review".`
+    `callClaude (mock): unrecognized prompt type. ` +
+      `Prompt must start with one of the known template sentences.`
   );
+}
+
+// ── Real implementation ────────────────────────────────────────────────────
+// Used when CLAUDE_MOCK is absent or not "true"
+
+async function callClaudeOnce(prompt: string): Promise<unknown> {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": process.env.ANTHROPIC_API_KEY!,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4096,
+      messages: [{ role: "user", content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Claude API error ${response.status}: ${body}`);
+  }
+
+  const data = await response.json();
+  const text: string = data.content[0].text;
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Claude returned invalid JSON:\n${text.slice(0, 300)}`);
+  }
+}
+
+async function callClaudeReal(prompt: string): Promise<unknown> {
+  try {
+    return await callClaudeOnce(prompt);
+  } catch (firstErr) {
+    console.warn("[callClaude] First attempt failed, retrying…", firstErr);
+    return await callClaudeOnce(prompt);
+  }
+}
+
+// ── Toggle ─────────────────────────────────────────────────────────────────
+// Set CLAUDE_MOCK=true in .env.local to use mock data (no API key needed).
+// Remove it or set CLAUDE_MOCK=false to use the real Claude API.
+
+export async function callClaude(prompt: string): Promise<unknown> {
+  if (process.env.CLAUDE_MOCK === "true") {
+    return callClaudeMock(prompt);
+  }
+  return callClaudeReal(prompt);
 }

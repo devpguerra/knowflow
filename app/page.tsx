@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, type DragEvent, type ChangeEvent } from "react";
+import { useState, useRef, useEffect, useCallback, type DragEvent, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
 import type { Analysis, GeneratedMaterials } from "@/types";
@@ -15,9 +15,19 @@ const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "advanced", label: "Advanced" },
 ];
 
-const LOADING_MESSAGES: Record<Exclude<LoadingPhase, "idle">, string> = {
-  analyzing: "Analyzing your content...",
-  generating: "Generating study materials...",
+const PHASE_MESSAGES: Record<Exclude<LoadingPhase, "idle">, string[]> = {
+  analyzing: [
+    "Reading your document…",
+    "Identifying key concepts…",
+    "Mapping topic structure…",
+    "Almost done analyzing…",
+  ],
+  generating: [
+    "Building your study guide…",
+    "Creating flashcards…",
+    "Crafting quiz questions…",
+    "Putting it all together…",
+  ],
 };
 
 export default function HomePage() {
@@ -29,10 +39,24 @@ export default function HomePage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [phase, setPhase] = useState<LoadingPhase>("idle");
+  const [msgIdx, setMsgIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const loading = phase !== "idle";
+
+  // Rotate loading messages
+  useEffect(() => {
+    if (!loading) {
+      setMsgIdx(0);
+      return;
+    }
+    const id = setInterval(() => setMsgIdx((i) => i + 1), 1800);
+    return () => clearInterval(id);
+  }, [loading]);
+
+  const messages = loading ? PHASE_MESSAGES[phase as Exclude<LoadingPhase, "idle">] : [];
+  const currentMsg = messages[msgIdx % messages.length] ?? "";
 
   // ── Drag and drop ──────────────────────────────────────────────────────────
 
@@ -110,6 +134,7 @@ export default function HomePage() {
 
       // Phase 2: generate
       setPhase("generating");
+      setMsgIdx(0);
 
       const genRes = await fetch("/api/generate", {
         method: "POST",
@@ -138,23 +163,25 @@ export default function HomePage() {
         style={{ background: "radial-gradient(ellipse, #7c3aed 0%, transparent 70%)" }}
       />
 
-      <div className="relative w-full max-w-2xl animate-slide-up">
+      <div className="relative w-full max-w-2xl page-enter">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-medium tracking-widest uppercase"
-            style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}>
+          <div
+            className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-medium tracking-widest uppercase"
+            style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}
+          >
             AI-Powered Learning
           </div>
-          <h1 className="font-heading text-5xl font-bold tracking-tight mb-3 gradient-text">
-            Knowledge Transformer
+          <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight mb-3 gradient-text">
+            Know - Flow
           </h1>
-          <p className="text-text-muted text-lg">
+          <p className="text-text-muted text-base sm:text-lg">
             Drop in any document and get a complete study system — instantly.
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl p-8 surface" style={{ boxShadow: "0 0 0 1px #1e1e38, 0 24px 64px rgba(0,0,0,0.6)" }}>
+        <div className="rounded-2xl p-5 sm:p-8 surface" style={{ boxShadow: "0 0 0 1px #1e1e38, 0 24px 64px rgba(0,0,0,0.6)" }}>
 
           {/* Tab toggle */}
           <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "#0a0a18" }}>
@@ -201,7 +228,7 @@ export default function HomePage() {
               onClick={() => !loading && fileInputRef.current?.click()}
               className="flex flex-col items-center justify-center gap-3 rounded-xl cursor-pointer transition-all duration-200 select-none"
               style={{
-                height: "220px",
+                height: "200px",
                 border: `2px dashed ${isDragging ? "#7c3aed" : "#1e1e38"}`,
                 background: isDragging ? "rgba(124,58,237,0.08)" : "#0a0a18",
               }}
@@ -248,7 +275,7 @@ export default function HomePage() {
                   key={value}
                   onClick={() => setDifficulty(value)}
                   disabled={loading}
-                  className="flex-1 py-2 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50"
+                  className="flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-50"
                   style={
                     difficulty === value
                       ? {
@@ -271,8 +298,18 @@ export default function HomePage() {
 
           {/* Error */}
           {error && (
-            <div className="mt-4 px-4 py-3 rounded-lg text-sm" style={{ background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.3)", color: "#fca5a5" }}>
-              {error}
+            <div
+              className="mt-4 flex items-start gap-3 px-4 py-3 rounded-lg text-sm"
+              style={{ background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.3)", color: "#fca5a5" }}
+            >
+              <span className="flex-1">{error}</span>
+              <button
+                onClick={handleTransform}
+                className="flex-shrink-0 text-xs font-medium underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity"
+                style={{ color: "#fca5a5" }}
+              >
+                Retry
+              </button>
             </div>
           )}
 
@@ -294,7 +331,7 @@ export default function HomePage() {
             {loading ? (
               <>
                 <Spinner />
-                {LOADING_MESSAGES[phase as Exclude<LoadingPhase, "idle">]}
+                {currentMsg}
               </>
             ) : (
               <>
@@ -303,12 +340,32 @@ export default function HomePage() {
               </>
             )}
           </button>
+
+          {/* Skeleton preview during loading */}
+          {loading && (
+            <div className="mt-6 space-y-3" aria-hidden>
+              <p className="text-xs mb-3" style={{ color: "#8888aa" }}>
+                {phase === "analyzing" ? "Analyzing document structure…" : "Generating study materials…"}
+              </p>
+              <div className="skeleton h-3 w-4/5" />
+              <div className="skeleton h-3 w-3/5" />
+              <div className="flex gap-3 mt-4">
+                <div className="skeleton h-16 flex-1 rounded-xl" />
+                <div className="skeleton h-16 flex-1 rounded-xl" />
+                <div className="skeleton h-16 flex-1 rounded-xl" />
+              </div>
+              <div className="skeleton h-3 w-2/3 mt-2" />
+              <div className="skeleton h-3 w-4/6" />
+            </div>
+          )}
         </div>
 
         {/* Footer hint */}
-        <p className="text-center text-xs mt-5" style={{ color: "#8888aa" }}>
-          Supports text up to 60,000 characters · PDF extraction included
-        </p>
+        {!loading && (
+          <p className="text-center text-xs mt-5" style={{ color: "#8888aa" }}>
+            Supports text up to 60,000 characters · PDF extraction included
+          </p>
+        )}
       </div>
     </main>
   );
