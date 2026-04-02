@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect, useCallback, type DragEvent, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
-import type { Analysis, GeneratedMaterials } from "@/types";
+import LoadingAgent, { type LoadingPhase } from "@/components/LoadingAgent";
+import type { Analysis, GeneratedMaterials, AgentEvent } from "@/types";
 
 type Tab = "text" | "pdf";
 type Difficulty = "beginner" | "intermediate" | "advanced";
@@ -14,41 +15,35 @@ const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "advanced", label: "Advanced" },
 ];
 
-const LOADING_MESSAGES = [
-  "Reading your document…",
-  "Identifying key concepts…",
-  "Mapping topic structure…",
-  "Building your study guide…",
-  "Creating flashcards…",
-  "Crafting quiz questions…",
-  "Putting it all together…",
+// Phase advances every ~3s to simulate agent progress
+const PHASE_SEQUENCE: LoadingPhase[] = [
+  "analyzing", "analyzing", "analyzing",
+  "searching",
+  "generating", "generating", "generating",
 ];
 
 export default function HomePage() {
   const router = useRouter();
-  const { setSourceText, setAnalysis, setMaterials, difficulty, setDifficulty } = useApp();
+  const { setSourceText, setAnalysis, setMaterials, appendAgentEvents, difficulty, setDifficulty } = useApp();
 
   const [tab, setTab] = useState<Tab>("text");
   const [pastedText, setPastedText] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [msgIdx, setMsgIdx] = useState(0);
+  const [phaseIdx, setPhaseIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Rotate loading messages
+  // Advance phase every 3 s while loading
   useEffect(() => {
-    if (!loading) {
-      setMsgIdx(0);
-      return;
-    }
-    const id = setInterval(() => setMsgIdx((i) => i + 1), 1800);
+    if (!loading) { setPhaseIdx(0); return; }
+    const id = setInterval(() => setPhaseIdx((i) => Math.min(i + 1, PHASE_SEQUENCE.length - 1)), 3000);
     return () => clearInterval(id);
   }, [loading]);
 
-  const currentMsg = loading ? (LOADING_MESSAGES[msgIdx % LOADING_MESSAGES.length] ?? "") : "";
+  const currentPhase: LoadingPhase = PHASE_SEQUENCE[phaseIdx] ?? "generating";
 
   // ── Drag and drop ──────────────────────────────────────────────────────────
 
@@ -115,10 +110,11 @@ export default function HomePage() {
       }
 
       if (!res.ok) throw new Error((await res.json()).error ?? "Agent failed.");
-      const { analysis, materials } = await res.json() as { analysis: Analysis; materials: GeneratedMaterials };
+      const { analysis, materials, agentEvents } = await res.json() as { analysis: Analysis; materials: GeneratedMaterials; agentEvents: AgentEvent[] };
 
       setAnalysis(analysis);
       setMaterials(materials);
+      appendAgentEvents(agentEvents ?? []);
       setSourceText(tab === "text" ? pastedText : (pdfFile?.name ?? ""));
 
       router.push("/materials");
@@ -304,34 +300,13 @@ export default function HomePage() {
                   }
             }
           >
-            {loading ? (
-              <>
-                <Spinner />
-                {currentMsg}
-              </>
-            ) : (
-              <>
-                <SparkleIcon />
-                Transform
-              </>
-            )}
+            {loading ? <><Spinner /> Working…</> : <><SparkleIcon /> Transform</>}
           </button>
 
-          {/* Skeleton preview during loading */}
+          {/* Agent loading display */}
           {loading && (
-            <div className="mt-6 space-y-3" aria-hidden>
-              <p className="text-xs mb-3" style={{ color: "#8888aa" }}>
-                Agent is working…
-              </p>
-              <div className="skeleton h-3 w-4/5" />
-              <div className="skeleton h-3 w-3/5" />
-              <div className="flex gap-3 mt-4">
-                <div className="skeleton h-16 flex-1 rounded-xl" />
-                <div className="skeleton h-16 flex-1 rounded-xl" />
-                <div className="skeleton h-16 flex-1 rounded-xl" />
-              </div>
-              <div className="skeleton h-3 w-2/3 mt-2" />
-              <div className="skeleton h-3 w-4/6" />
+            <div className="mt-4 rounded-xl overflow-hidden" style={{ border: "1px solid #1e1e38", background: "#0a0a18" }}>
+              <LoadingAgent phase={currentPhase} />
             </div>
           )}
         </div>

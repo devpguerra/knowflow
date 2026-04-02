@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
+import AgentReasoning from "@/components/AgentReasoning";
 import FlashcardDeck from "@/components/FlashcardDeck";
+import StudyGuide from "@/components/StudyGuide";
 import QuizRunner from "@/components/QuizRunner";
 import ScoreCard from "@/components/ScoreCard";
 import ProgressTracker from "@/components/ProgressTracker";
-import type { ReviewPack, QuizResult } from "@/types";
+import type { ReviewPack, QuizResult, AgentEvent } from "@/types";
 
 const SS_KEY = "knowflow_review_pack";
 const LS_KEY = "knowflow_quiz_results";
@@ -25,23 +27,34 @@ type Phase = "review" | "quiz" | "score";
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { quizResults, addQuizResult } = useApp();
+  const { quizResults, addQuizResult, appendAgentEvents, agentEvents } = useApp();
 
   const [reviewPack, setReviewPack] = useState<ReviewPack | null>(null);
   const [phase, setPhase] = useState<Phase>("review");
   const [retakeResult, setRetakeResult] = useState<QuizResult | null>(null);
+  const appended = useRef(false);
 
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(SS_KEY);
       if (raw) {
-        setReviewPack(JSON.parse(raw));
+        const parsed = JSON.parse(raw);
+        if (parsed.reviewPack) {
+          setReviewPack(parsed.reviewPack);
+          if (!appended.current) {
+            appended.current = true;
+            appendAgentEvents((parsed.agentEvents ?? []) as AgentEvent[]);
+          }
+        } else {
+          setReviewPack(parsed);
+        }
       } else {
         router.replace("/materials");
       }
     } catch {
       router.replace("/materials");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
   if (!reviewPack) return null;
@@ -64,6 +77,9 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
+      {/* Agent reasoning panel — reads full history from context */}
+      <AgentReasoning events={agentEvents} />
+
       {/* Header */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
@@ -168,6 +184,19 @@ export default function ReviewPage() {
               </div>
             )}
 
+            {/* Simplified study guide — shown for deep review (score < 50%) */}
+            {reviewPack.simplifiedGuide?.sections?.length && (
+              <div className="animate-slide-up">
+                <p
+                  className="text-xs font-semibold uppercase tracking-widest mb-4 px-1"
+                  style={{ color: "#8888aa" }}
+                >
+                  Simplified Study Guide
+                </p>
+                <StudyGuide sections={reviewPack.simplifiedGuide.sections} />
+              </div>
+            )}
+
             {/* Focused flashcards */}
             {(reviewPack.focusedFlashcards ?? []).length > 0 && (
               <div className="animate-slide-up">
@@ -235,7 +264,7 @@ export default function ReviewPage() {
                 Targeted Quiz
               </h1>
               <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
-                {reviewPack.retakeQuiz.questions.length} questions focused on weak areas
+                {reviewPack.retakeQuiz?.questions.length ?? 0} questions focused on weak areas
               </p>
             </div>
 
@@ -261,7 +290,7 @@ export default function ReviewPage() {
 
             <ScoreCard
               result={retakeResult}
-              questions={reviewPack.retakeQuiz.questions}
+              questions={reviewPack.retakeQuiz?.questions ?? []}
               allResults={quizResults}
               onReview={handleRetakeAgain}
               onBack={() => router.push("/materials")}

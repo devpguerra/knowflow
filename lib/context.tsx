@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
-import type { Analysis, GeneratedMaterials, QuizResult } from "@/types";
+import type { Analysis, GeneratedMaterials, QuizResult, AgentEvent } from "@/types";
 
 interface AppState {
   sourceText: string;
@@ -12,6 +12,8 @@ interface AppState {
   setAnalysis: (a: Analysis | null) => void;
   materials: GeneratedMaterials | null;
   setMaterials: (m: GeneratedMaterials | null) => void;
+  agentEvents: AgentEvent[];
+  appendAgentEvents: (events: AgentEvent[]) => void;
   quizResults: QuizResult[];
   addQuizResult: (r: QuizResult) => void;
   resetSession: () => void;
@@ -24,7 +26,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [difficulty, setDifficulty] = useState("intermediate");
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [materials, setMaterials] = useState<GeneratedMaterials | null>(null);
+  const [agentEvents, setAgentEvents] = useState<AgentEvent[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
+
+  function appendAgentEvents(events: AgentEvent[]) {
+    setAgentEvents((prev) => [...prev, ...events]);
+  }
 
   function addQuizResult(r: QuizResult) {
     setQuizResults((prev) => [...prev, r]);
@@ -35,6 +42,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDifficulty("intermediate");
     setAnalysis(null);
     setMaterials(null);
+    setAgentEvents([]);
     setQuizResults([]);
   }
 
@@ -49,6 +57,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setAnalysis,
         materials,
         setMaterials,
+        agentEvents,
+        appendAgentEvents,
         quizResults,
         addQuizResult,
         resetSession,

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
 import QuizRunner from "@/components/QuizRunner";
 import ScoreCard from "@/components/ScoreCard";
-import type { QuizResult, ReviewPack } from "@/types";
+import LoadingAgent from "@/components/LoadingAgent";
+import type { QuizResult, ReviewPack, AgentEvent } from "@/types";
 
 const LS_KEY = "knowflow_quiz_results";
 
@@ -57,8 +58,11 @@ export default function QuizPage() {
         }),
       });
       if (!res.ok) throw new Error("Review generation failed.");
-      const reviewPack: ReviewPack = await res.json();
-      sessionStorage.setItem("knowflow_review_pack", JSON.stringify(reviewPack));
+      const { reviewPack, agentEvents } = await res.json() as {
+        reviewPack: ReviewPack;
+        agentEvents: AgentEvent[];
+      };
+      sessionStorage.setItem("knowflow_review_pack", JSON.stringify({ reviewPack, agentEvents }));
       router.push("/review");
     } catch (err) {
       console.error("[quiz/handleReview]", err);
@@ -126,6 +130,11 @@ export default function QuizPage() {
               onComplete={handleComplete}
             />
           </>
+        ) : reviewLoading ? (
+          /* Review agent loading */
+          <div className="max-w-sm mx-auto rounded-2xl overflow-hidden" style={{ border: "1px solid #1e1e38", background: "#0a0a18" }}>
+            <LoadingAgent phase="reviewing" />
+          </div>
         ) : (
           <>
             {/* Score header */}

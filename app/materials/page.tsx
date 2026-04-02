@@ -5,21 +5,31 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
 import { exportFlashcardsToCSV, exportStudyGuideToPDF } from "@/lib/export";
 import ContentMap from "@/components/ContentMap";
+import AgentReasoning from "@/components/AgentReasoning";
 import StudyGuide from "@/components/StudyGuide";
 import FlashcardDeck from "@/components/FlashcardDeck";
 
 type Tab = "guide" | "cards" | "quiz";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "guide", label: "Study Guide" },
-  { id: "cards", label: "Flashcards" },
-  { id: "quiz", label: "Quiz" },
-];
-
 export default function MaterialsPage() {
   const router = useRouter();
-  const { analysis, materials, sourceText, resetSession } = useApp();
-  const [tab, setTab] = useState<Tab>("guide");
+  const { analysis, materials, agentEvents, sourceText, resetSession } = useApp();
+
+  // Build tabs only for materials the agent actually generated
+  const availableTabs = [
+    materials?.studyGuide ? { id: "guide" as Tab, label: "Study Guide" } : null,
+    materials?.flashcards?.length ? { id: "cards" as Tab, label: "Flashcards" } : null,
+    materials?.quiz?.questions?.length ? { id: "quiz" as Tab, label: "Quiz" } : null,
+  ].filter(Boolean) as { id: Tab; label: string }[];
+
+  const [tab, setTab] = useState<Tab | null>(null);
+
+  // Set default tab once materials load
+  useEffect(() => {
+    if (availableTabs.length > 0 && tab === null) {
+      setTab(availableTabs[0].id);
+    }
+  }, [availableTabs.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const [exportOpen, setExportOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -87,7 +97,7 @@ export default function MaterialsPage() {
     setExportOpen(false);
     setExporting(true);
     try {
-      await exportStudyGuideToPDF(materials!.studyGuide.sections, analysis!.title);
+      await exportStudyGuideToPDF(materials!.studyGuide?.sections ?? [], analysis!.title);
     } finally {
       setExporting(false);
     }
@@ -102,6 +112,9 @@ export default function MaterialsPage() {
 
   return (
     <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
+      {/* Floating agent reasoning chat panel */}
+      <AgentReasoning events={agentEvents} />
+
       {/* Top bar */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
@@ -161,45 +174,47 @@ export default function MaterialsPage() {
         {/* Analysis summary */}
         <ContentMap analysis={analysis} />
 
-        {/* Tab nav */}
-        <div
-          className="flex gap-1 p-1 rounded-xl mb-6"
-          style={{ background: "#10101c", border: "1px solid #1e1e38" }}
-        >
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200"
-              style={
-                tab === t.id
-                  ? {
-                      background: "#16162a",
-                      color: "#e8e8f0",
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.4)",
-                    }
-                  : { color: "#8888aa" }
-              }
-            >
-              {t.label}
-              {t.id === "cards" && (
-                <span
-                  className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
-                  style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
-                >
-                  {materials.flashcards.length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Tab nav — only rendered tabs exist in materials */}
+        {availableTabs.length > 0 && (
+          <div
+            className="flex gap-1 p-1 rounded-xl mb-6"
+            style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+          >
+            {availableTabs.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200"
+                style={
+                  tab === t.id
+                    ? { background: "#16162a", color: "#e8e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.4)" }
+                    : { color: "#8888aa" }
+                }
+              >
+                {t.label}
+                {t.id === "cards" && materials.flashcards && (
+                  <span
+                    className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs"
+                    style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
+                  >
+                    {materials.flashcards.length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tab content */}
-        {tab === "guide" && <StudyGuide sections={materials.studyGuide.sections} />}
+        {tab === "guide" && materials.studyGuide && (
+          <StudyGuide sections={materials.studyGuide.sections} />
+        )}
 
-        {tab === "cards" && <FlashcardDeck flashcards={materials.flashcards} />}
+        {tab === "cards" && materials.flashcards && (
+          <FlashcardDeck flashcards={materials.flashcards} />
+        )}
 
-        {tab === "quiz" && (
+        {tab === "quiz" && materials.quiz && (
           <div
             className="rounded-2xl p-10 flex flex-col items-center gap-5 text-center animate-slide-up"
             style={{ background: "#10101c", border: "1px solid #1e1e38" }}

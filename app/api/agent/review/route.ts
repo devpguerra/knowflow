@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callClaudeWithTools, type ClaudeMessage, type ContentBlock } from "@/lib/claude";
 import { executeToolCalls, toToolResultBlocks } from "@/lib/toolExecutor";
-import { agentTools, type ToolUseBlock } from "@/lib/tools";
+import { agentTools, PARALLEL_SAFE, type ToolUseBlock } from "@/lib/tools";
 import type {
   Flashcard,
   QuizQuestion,
   StudyGuideSection,
   ReviewPack,
-  AgentReasoning,
   KnowledgeGapAssessment,
   QuizResult,
+  AgentEvent,
 } from "@/types";
 
 const MAX_TURNS = 10;
@@ -77,17 +77,18 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
       },
     ];
 
-    const reasoningTexts: string[] = [];
-    const toolTimings: { toolName: string; durationMs: number }[] = [];
+    const agentEvents: AgentEvent[] = [];
     const toolResultsByName: Record<string, unknown> = {};
+
+    const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
 
     for (let turn = 0; turn < MAX_TURNS; turn++) {
       const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools);
 
-      // Capture text as reasoning
+      // Capture text blocks as reasoning events (before tool events for this turn)
       const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
       for (const b of textBlocks) {
-        if (b.text) reasoningTexts.push(b.text as string);
+        if (b.text) agentEvents.push({ type: "reasoning", text: b.text as string });
       }
 
       // Find tool calls
@@ -99,9 +100,30 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
 
       const results = await executeToolCalls(toolUseBlocks);
 
+      // Collect results and build events
+      const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
+      const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
+
       for (const r of results) {
-        toolTimings.push({ toolName: r.toolName, durationMs: r.durationMs });
         toolResultsByName[r.toolName] = r.result;
+      }
+
+      // Sequential tools → individual events
+      for (const r of seqResults) {
+        agentEvents.push({
+          type: "tool_call",
+          tools: [{ toolName: r.toolName, durationMs: r.durationMs }],
+          parallel: false,
+        });
+      }
+
+      // Parallel tools → single grouped event
+      if (parResults.length > 0) {
+        agentEvents.push({
+          type: "tool_call",
+          tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })),
+          parallel: parResults.length > 1,
+        });
       }
 
       messages.push({ role: "assistant", content: response.content });
@@ -129,10 +151,9 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
       simplifiedGuide: toolResultsByName["generate_study_guide"]
         ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] }
         : null,
-      agentReasoning: buildReasoning(reasoningTexts, Object.keys(toolResultsByName)),
     };
 
-    return NextResponse.json(reviewPack);
+    return NextResponse.json({ reviewPack, agentEvents });
   } catch (err) {
     console.error("[/api/agent/review]", err);
     return NextResponse.json(
@@ -140,16 +161,4 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
       { status: 500 }
     );
   }
-}
-
-function buildReasoning(texts: string[], toolsCalled: string[]): AgentReasoning {
-  const rationale = texts.join("\n\n").trim();
-  return {
-    thought: texts[0]?.trim() ?? "",
-    decision: toolsCalled.length
-      ? `Called tools: ${toolsCalled.join(", ")}`
-      : "No tools called",
-    toolsCalled,
-    rationale,
-  };
 }

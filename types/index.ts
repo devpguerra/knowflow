@@ -63,6 +63,15 @@ export interface ReviewPack {
   agentReasoning?: AgentReasoning;
 }
 
+export interface ToolTiming {
+  toolName: string;
+  durationMs: number;
+}
+
+export type AgentEvent =
+  | { type: "reasoning"; text: string }
+  | { type: "tool_call"; tools: { toolName: string; durationMs: number }[]; parallel: boolean };
+
 export interface QuizResult {
   round: number;
   score: number;
