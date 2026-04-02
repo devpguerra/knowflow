@@ -34,7 +34,7 @@ export default function QuizPage() {
 
   if (!materials || !analysis) return null;
 
-  const questions = materials.quiz.questions;
+  const questions = materials.quiz?.questions ?? [];
   const round = quizResults.length + 1;
 
   function handleComplete(r: QuizResult) {
@@ -47,18 +47,17 @@ export default function QuizPage() {
     if (!result) return;
     setReviewLoading(true);
     try {
-      const res = await fetch("/api/review", {
+      const res = await fetch("/api/agent/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sourceText,
-          wrongAnswers: result.wrongAnswers,
-          missedConcepts: result.missedConcepts,
+          quizResult: result,
+          questions,
         }),
       });
       if (!res.ok) throw new Error("Review generation failed.");
       const reviewPack: ReviewPack = await res.json();
-      // Store in sessionStorage so the review page can read it
       sessionStorage.setItem("knowflow_review_pack", JSON.stringify(reviewPack));
       router.push("/review");
     } catch (err) {

@@ -131,12 +131,12 @@ export default function ReviewPage() {
                 </p>
               </div>
               <p className="text-sm leading-relaxed" style={{ color: "#b8b8cc" }}>
-                {reviewPack.weakAreaSummary}
+                {reviewPack.assessment.strategy}
               </p>
             </div>
 
-            {/* Study tips */}
-            {(reviewPack.studyTips ?? []).length > 0 && (
+            {/* Recommended actions */}
+            {(reviewPack.assessment.recommendedActions ?? []).length > 0 && (
               <div
                 className="rounded-2xl p-6 animate-slide-up"
                 style={{
@@ -148,10 +148,10 @@ export default function ReviewPage() {
                   className="text-xs font-semibold uppercase tracking-widest mb-3"
                   style={{ color: "#a78bfa" }}
                 >
-                  Study Tips
+                  Recommended Actions
                 </p>
                 <ul className="space-y-2.5">
-                  {(reviewPack.studyTips ?? []).map((tip, i) => (
+                  {(reviewPack.assessment.recommendedActions ?? []).map((action, i) => (
                     <li key={i} className="flex items-start gap-2.5">
                       <span
                         className="flex-shrink-0 mt-1 w-5 h-5 rounded-lg flex items-center justify-center text-xs font-bold"
@@ -160,7 +160,7 @@ export default function ReviewPage() {
                         {i + 1}
                       </span>
                       <span className="text-sm leading-relaxed" style={{ color: "#c4b5fd" }}>
-                        {tip}
+                        {action}
                       </span>
                     </li>
                   ))}

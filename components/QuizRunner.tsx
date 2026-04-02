@@ -35,6 +35,7 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
           wrongAnswers.push({
             questionId: q.id,
             concept: q.concept,
+            question: q.question,
             userAnswer: chosen,
             correctAnswer: q.correctAnswer,
           });

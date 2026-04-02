@@ -7,7 +7,6 @@ import type { Analysis, GeneratedMaterials } from "@/types";
 
 type Tab = "text" | "pdf";
 type Difficulty = "beginner" | "intermediate" | "advanced";
-type LoadingPhase = "idle" | "analyzing" | "generating";
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "beginner", label: "Beginner" },
@@ -15,20 +14,15 @@ const DIFFICULTIES: { value: Difficulty; label: string }[] = [
   { value: "advanced", label: "Advanced" },
 ];
 
-const PHASE_MESSAGES: Record<Exclude<LoadingPhase, "idle">, string[]> = {
-  analyzing: [
-    "Reading your document…",
-    "Identifying key concepts…",
-    "Mapping topic structure…",
-    "Almost done analyzing…",
-  ],
-  generating: [
-    "Building your study guide…",
-    "Creating flashcards…",
-    "Crafting quiz questions…",
-    "Putting it all together…",
-  ],
-};
+const LOADING_MESSAGES = [
+  "Reading your document…",
+  "Identifying key concepts…",
+  "Mapping topic structure…",
+  "Building your study guide…",
+  "Creating flashcards…",
+  "Crafting quiz questions…",
+  "Putting it all together…",
+];
 
 export default function HomePage() {
   const router = useRouter();
@@ -38,12 +32,11 @@ export default function HomePage() {
   const [pastedText, setPastedText] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [phase, setPhase] = useState<LoadingPhase>("idle");
+  const [loading, setLoading] = useState(false);
   const [msgIdx, setMsgIdx] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const loading = phase !== "idle";
 
   // Rotate loading messages
   useEffect(() => {
@@ -55,8 +48,7 @@ export default function HomePage() {
     return () => clearInterval(id);
   }, [loading]);
 
-  const messages = loading ? PHASE_MESSAGES[phase as Exclude<LoadingPhase, "idle">] : [];
-  const currentMsg = messages[msgIdx % messages.length] ?? "";
+  const currentMsg = loading ? (LOADING_MESSAGES[msgIdx % LOADING_MESSAGES.length] ?? "") : "";
 
   // ── Drag and drop ──────────────────────────────────────────────────────────
 
@@ -105,50 +97,34 @@ export default function HomePage() {
     }
 
     try {
-      // Phase 1: analyze
-      setPhase("analyzing");
+      setLoading(true);
 
-      let analysisResult: Analysis;
+      let res: Response;
 
       if (tab === "pdf" && pdfFile) {
         const form = new FormData();
         form.append("file", pdfFile);
         form.append("difficulty", difficulty);
-
-        const res = await fetch("/api/analyze", { method: "POST", body: form });
-        if (!res.ok) throw new Error((await res.json()).error ?? "Analysis failed.");
-        analysisResult = await res.json();
+        res = await fetch("/api/agent", { method: "POST", body: form });
       } else {
-        const res = await fetch("/api/analyze", {
+        res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: pastedText, difficulty }),
         });
-        if (!res.ok) throw new Error((await res.json()).error ?? "Analysis failed.");
-        analysisResult = await res.json();
       }
 
-      const text = tab === "text" ? pastedText : (pdfFile?.name ?? "");
-      setAnalysis(analysisResult);
-      setSourceText(text);
+      if (!res.ok) throw new Error((await res.json()).error ?? "Agent failed.");
+      const { analysis, materials } = await res.json() as { analysis: Analysis; materials: GeneratedMaterials };
 
-      // Phase 2: generate
-      setPhase("generating");
-      setMsgIdx(0);
-
-      const genRes = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, analysis: analysisResult, difficulty }),
-      });
-      if (!genRes.ok) throw new Error((await genRes.json()).error ?? "Generation failed.");
-      const materialsResult: GeneratedMaterials = await genRes.json();
-      setMaterials(materialsResult);
+      setAnalysis(analysis);
+      setMaterials(materials);
+      setSourceText(tab === "text" ? pastedText : (pdfFile?.name ?? ""));
 
       router.push("/materials");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      setPhase("idle");
+      setLoading(false);
     }
   }
 
@@ -345,7 +321,7 @@ export default function HomePage() {
           {loading && (
             <div className="mt-6 space-y-3" aria-hidden>
               <p className="text-xs mb-3" style={{ color: "#8888aa" }}>
-                {phase === "analyzing" ? "Analyzing document structure…" : "Generating study materials…"}
+                Agent is working…
               </p>
               <div className="skeleton h-3 w-4/5" />
               <div className="skeleton h-3 w-3/5" />
