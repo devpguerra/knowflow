@@ -12,6 +12,8 @@ import type {
   AgentEvent,
 } from "@/types";
 
+export const maxDuration = 60;
+
 const MAX_CHARS = 60_000;
 const MAX_TURNS = 10;
 

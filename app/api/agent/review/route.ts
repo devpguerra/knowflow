@@ -12,6 +12,8 @@ import type {
   AgentEvent,
 } from "@/types";
 
+export const maxDuration = 60;
+
 const MAX_TURNS = 10;
 
 const SYSTEM_PROMPT = `You are Knowledge Transformer's review agent. You have been given quiz results showing where a user struggled.
