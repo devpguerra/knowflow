@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
-import AgentReasoning from "@/components/AgentReasoning";
 import FlashcardDeck from "@/components/FlashcardDeck";
 import StudyGuide from "@/components/StudyGuide";
 import QuizRunner from "@/components/QuizRunner";
@@ -27,7 +26,7 @@ type Phase = "review" | "quiz" | "score";
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { quizResults, addQuizResult, appendAgentEvents, agentEvents } = useApp();
+  const { quizResults, addQuizResult, appendAgentEvents } = useApp();
 
   const [reviewPack, setReviewPack] = useState<ReviewPack | null>(null);
   const [phase, setPhase] = useState<Phase>("review");
@@ -77,8 +76,6 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
-      {/* Agent reasoning panel — reads full history from context */}
-      <AgentReasoning events={agentEvents} />
 
       {/* Header */}
       <header

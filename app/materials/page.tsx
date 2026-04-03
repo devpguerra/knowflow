@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/context";
 import { exportFlashcardsToCSV, exportStudyGuideToPDF } from "@/lib/export";
 import ContentMap from "@/components/ContentMap";
-import AgentReasoning from "@/components/AgentReasoning";
 import StudyGuide from "@/components/StudyGuide";
 import FlashcardDeck from "@/components/FlashcardDeck";
 
@@ -13,7 +12,7 @@ type Tab = "guide" | "cards" | "quiz";
 
 export default function MaterialsPage() {
   const router = useRouter();
-  const { analysis, materials, agentEvents, sourceText, resetSession } = useApp();
+  const { analysis, materials, sourceText, resetSession } = useApp();
 
   // Build tabs only for materials the agent actually generated
   const availableTabs = [
@@ -112,8 +111,6 @@ export default function MaterialsPage() {
 
   return (
     <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
-      {/* Floating agent reasoning chat panel */}
-      <AgentReasoning events={agentEvents} />
 
       {/* Top bar */}
       <header
