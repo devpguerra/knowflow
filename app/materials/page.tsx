@@ -89,7 +89,7 @@ export default function MaterialsPage() {
 
   async function handleCSV() {
     setExportOpen(false);
-    exportFlashcardsToCSV(materials!.flashcards);
+    if (materials!.flashcards) exportFlashcardsToCSV(materials!.flashcards);
   }
 
   async function handlePDF() {
@@ -133,8 +133,8 @@ export default function MaterialsPage() {
 
         <div className="flex-1" />
 
-        {/* Export dropdown */}
-        <div className="relative" ref={exportRef}>
+        {/* Export dropdown — only shown when there's something to export */}
+        {(materials.flashcards || materials.studyGuide) && <div className="relative" ref={exportRef}>
           <button
             onClick={() => setExportOpen((o) => !o)}
             disabled={exporting}
@@ -159,11 +159,15 @@ export default function MaterialsPage() {
                 boxShadow: "0 12px 32px rgba(0,0,0,0.6)",
               }}
             >
-              <DropdownItem onClick={handleCSV} icon={<CsvIcon />} label="Flashcards as CSV" />
-              <DropdownItem onClick={handlePDF} icon={<PdfIcon />} label="Study Guide as PDF" />
+              {materials.flashcards && (
+                <DropdownItem onClick={handleCSV} icon={<CsvIcon />} label="Flashcards as CSV" />
+              )}
+              {materials.studyGuide && (
+                <DropdownItem onClick={handlePDF} icon={<PdfIcon />} label="Study Guide as PDF" />
+              )}
             </div>
           )}
-        </div>
+        </div>}
       </header>
 
       {/* Content */}
