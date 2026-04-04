@@ -6,7 +6,7 @@ import { useApp } from "@/lib/context";
 import LoadingAgent, { type LoadingPhase } from "@/components/LoadingAgent";
 import type { Analysis, GeneratedMaterials, AgentEvent } from "@/types";
 
-type Tab = "text" | "pdf";
+type Tab = "topic" | "text" | "pdf";
 type Difficulty = "beginner" | "intermediate" | "advanced";
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
@@ -26,7 +26,8 @@ export default function HomePage() {
   const router = useRouter();
   const { setSourceText, setAnalysis, setMaterials, appendAgentEvents, difficulty, setDifficulty } = useApp();
 
-  const [tab, setTab] = useState<Tab>("text");
+  const [tab, setTab] = useState<Tab>("topic");
+  const [topicInput, setTopicInput] = useState("");
   const [pastedText, setPastedText] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -82,6 +83,10 @@ export default function HomePage() {
   async function handleTransform() {
     setError(null);
 
+    if (tab === "topic" && !topicInput.trim()) {
+      setError("Please enter a topic to study.");
+      return;
+    }
     if (tab === "text" && !pastedText.trim()) {
       setError("Please paste some text to analyze.");
       return;
@@ -96,7 +101,13 @@ export default function HomePage() {
 
       let res: Response;
 
-      if (tab === "pdf" && pdfFile) {
+      if (tab === "topic") {
+        res = await fetch("/api/agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: topicInput.trim(), difficulty }),
+        });
+      } else if (tab === "pdf" && pdfFile) {
         const form = new FormData();
         form.append("file", pdfFile);
         form.append("difficulty", difficulty);
@@ -115,7 +126,11 @@ export default function HomePage() {
       setAnalysis(analysis);
       setMaterials(materials);
       appendAgentEvents(agentEvents ?? []);
-      setSourceText(tab === "text" ? pastedText : (pdfFile?.name ?? ""));
+      setSourceText(
+        tab === "topic" ? topicInput.trim() :
+        tab === "text"  ? pastedText :
+        (pdfFile?.name ?? "")
+      );
 
       router.push("/materials");
     } catch (err) {
@@ -157,7 +172,7 @@ export default function HomePage() {
 
           {/* Tab toggle */}
           <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "#0a0a18" }}>
-            {(["text", "pdf"] as Tab[]).map((t) => (
+            {(["topic", "text", "pdf"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => { setTab(t); setError(null); }}
@@ -169,13 +184,30 @@ export default function HomePage() {
                     : { color: "#8888aa" }
                 }
               >
-                {t === "text" ? "Paste Text" : "Upload PDF"}
+                {t === "topic" ? "Topic" : t === "text" ? "Paste Text" : "Upload PDF"}
               </button>
             ))}
           </div>
 
           {/* Input area */}
-          {tab === "text" ? (
+          {tab === "topic" ? (
+            <input
+              type="text"
+              value={topicInput}
+              onChange={(e) => { setTopicInput(e.target.value); setError(null); }}
+              disabled={loading}
+              placeholder="e.g., Photosynthesis, Machine Learning, The French Revolution"
+              className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all duration-200 disabled:opacity-50 placeholder:text-text-muted"
+              style={{
+                background: "#0a0a18",
+                border: "1px solid #1e1e38",
+                color: "#e8e8f0",
+                fontFamily: "var(--font-body)",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e38")}
+            />
+          ) : tab === "text" ? (
             <textarea
               value={pastedText}
               onChange={(e) => { setPastedText(e.target.value); setError(null); }}
@@ -314,7 +346,11 @@ export default function HomePage() {
         {/* Footer hint */}
         {!loading && (
           <p className="text-center text-xs mt-5" style={{ color: "#8888aa" }}>
-            Supports text up to 60,000 characters · PDF extraction included
+            {tab === "topic"
+              ? "Topic mode uses web search to build study materials from scratch"
+              : tab === "text"
+              ? "Supports text up to 60,000 characters"
+              : "PDF extraction included · up to 60,000 characters extracted"}
           </p>
         )}
       </div>
