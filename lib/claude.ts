@@ -144,6 +144,10 @@ const MOCK_STUDY_GUIDE_SECTIONS: StudyGuideSection[] = [
       "Requires sunlight, CO2, and water",
       "Produces glucose and oxygen",
     ],
+    sources: [
+      { title: "Photosynthesis – Wikipedia", url: "https://en.wikipedia.org/wiki/Photosynthesis" },
+      { title: "Khan Academy", url: "https://www.khanacademy.org/science/ap-biology/cellular-energetics/photosynthesis/a/intro-to-photosynthesis" },
+    ],
   },
   {
     title: "ATP Production",
@@ -153,6 +157,10 @@ const MOCK_STUDY_GUIDE_SECTIONS: StudyGuideSection[] = [
       "ATP = energy currency of the cell",
       "Produced in mitochondria and chloroplasts",
       "~30–32 ATP per glucose molecule",
+    ],
+    sources: [
+      { title: "ATP – Wikipedia", url: "https://en.wikipedia.org/wiki/Adenosine_triphosphate" },
+      { title: "Cellular Respiration – Khan Academy", url: "https://www.khanacademy.org/science/ap-biology/cellular-energetics/cellular-respiration-ap/a/steps-of-cellular-respiration" },
     ],
   },
 ];

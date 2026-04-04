@@ -46,6 +46,7 @@ export interface StudyGuideSection {
   title: string;
   content: string;
   keyTakeaways: string[];
+  sources?: { title: string; url: string }[];
 }
 
 export interface GeneratedMaterials {

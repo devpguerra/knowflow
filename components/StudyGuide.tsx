@@ -36,6 +36,36 @@ export default function StudyGuide({ sections }: Props) {
             ))}
           </div>
 
+          {/* Sources */}
+          {section.sources && section.sources.length > 0 && (
+            <div className="my-4 pt-4" style={{ borderTop: "1px solid #1e1e38" }}>
+              <p
+                className="text-xs font-semibold uppercase tracking-widest mb-2"
+                style={{ color: "#6b6b88" }}
+              >
+                Sources
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {section.sources.map((src, k) => (
+                  <a
+                    key={k}
+                    href={src.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-3 py-1 rounded-full transition-opacity hover:opacity-80"
+                    style={{
+                      color: "#7c3aed",
+                      background: "rgba(124,58,237,0.08)",
+                      border: "1px solid rgba(124,58,237,0.2)",
+                    }}
+                  >
+                    {src.title} ↗
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Key takeaways */}
           {section.keyTakeaways.length > 0 && (
             <div

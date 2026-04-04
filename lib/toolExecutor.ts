@@ -163,9 +163,11 @@ Return a JSON array where each element is a section:
 {
   "title": "string — section heading",
   "content": "string — explanatory text (use \\n for paragraph breaks, respect the word limit above)",
-  "keyTakeaways": ["string — 5 words max per bullet"]
+  "keyTakeaways": ["string — 5 words max per bullet"],
+  "sources": [{ "title": "string — short display name", "url": "string — full https URL" }]
 }
 
+For sources: include 1–3 authoritative reference links per section (Wikipedia articles, official docs, reputable educational sites). Only include URLs you are confident exist.
 Limit keyTakeaways to 3 bullets per section. Keep the total JSON response under 3000 tokens.
 
 ${JSON_ONLY}`;
