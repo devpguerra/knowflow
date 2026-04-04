@@ -148,10 +148,10 @@ ${JSON_ONLY}`;
         : "";
       const depthNote =
         depth === "overview"
-          ? "Keep each section concise — 1-2 short paragraphs."
+          ? "Keep each section to 1 short paragraph (max 150 words). No fluff."
           : depth === "detailed"
-          ? "Each section should be thorough — 2-4 paragraphs with examples."
-          : "Go deep — 3-5 paragraphs per section with analogies, examples, and connections.";
+          ? "Each section: 2 concise paragraphs with one example (max 250 words total)."
+          : "Each section: 3 focused paragraphs with one analogy and one example (max 350 words total).";
       return `Generate a ${depth} study guide for the following concepts:
 
 ${conceptList(concepts)}
@@ -162,9 +162,11 @@ ${depthNote}
 Return a JSON array where each element is a section:
 {
   "title": "string — section heading",
-  "content": "string — full explanatory text (use \\n for paragraph breaks)",
-  "keyTakeaways": ["string — bullet point summary"]
+  "content": "string — explanatory text (use \\n for paragraph breaks, respect the word limit above)",
+  "keyTakeaways": ["string — 5 words max per bullet"]
 }
+
+Limit keyTakeaways to 3 bullets per section. Keep the total JSON response under 3000 tokens.
 
 ${JSON_ONLY}`;
     }
