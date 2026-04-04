@@ -19,164 +19,164 @@ export interface ClaudeMessage {
 // ── Mock data ──────────────────────────────────────────────────────────────
 
 const MOCK_ANALYSIS: Analysis = {
-  title: "Biology: Photosynthesis & Cell Respiration",
+  title: "Python Programming: Core Concepts for Beginners",
   summary:
-    "An overview of how plants convert light energy into chemical energy and how cells produce ATP through respiration.",
+    "An introduction to Python covering variables, data types, control flow, functions, and lists — the building blocks every Python developer needs.",
   concepts: [
     {
-      name: "Photosynthesis",
-      description: "The process by which plants convert sunlight into glucose using CO2 and water.",
+      name: "Variables & Data Types",
+      description: "Named containers that store values; Python supports int, float, str, and bool with dynamic typing.",
+      difficulty: "easy",
+      importance: "high",
+    },
+    {
+      name: "Control Flow",
+      description: "if/elif/else statements and while loops that direct the execution path of a program.",
+      difficulty: "easy",
+      importance: "high",
+    },
+    {
+      name: "Functions",
+      description: "Reusable blocks of code defined with the `def` keyword that accept parameters and return values.",
       difficulty: "medium",
       importance: "high",
     },
     {
-      name: "Cell Respiration",
-      description: "The process cells use to break down glucose and produce ATP.",
-      difficulty: "medium",
-      importance: "high",
-    },
-    {
-      name: "ATP Production",
-      description: "Adenosine triphosphate synthesis via the electron transport chain.",
-      difficulty: "hard",
-      importance: "high",
-    },
-    {
-      name: "Light Reactions",
-      description: "The first stage of photosynthesis that captures light energy.",
-      difficulty: "medium",
+      name: "Lists & Iteration",
+      description: "Ordered, mutable collections and the `for` loop used to process each element.",
+      difficulty: "easy",
       importance: "medium",
     },
     {
-      name: "Calvin Cycle",
-      description: "The second stage of photosynthesis that fixes CO2 into glucose.",
-      difficulty: "hard",
+      name: "String Manipulation",
+      description: "Working with text using string methods like .upper(), .split(), and f-strings.",
+      difficulty: "easy",
       importance: "medium",
     },
   ],
-  estimatedStudyTime: "20 minutes",
-  topicAreas: ["Photosynthesis", "Cell Respiration", "ATP Production"],
+  estimatedStudyTime: "25 minutes",
+  topicAreas: ["Variables", "Functions", "Control Flow"],
 };
 
 const MOCK_WEB_SEARCH: unknown = {
-  query: "photosynthesis cell respiration",
+  query: "python programming basics for beginners",
   summary:
-    "Photosynthesis and cellular respiration are complementary processes. Plants use sunlight, CO2, and water to produce glucose and oxygen. Cells then break down glucose to produce ATP through glycolysis, the Krebs cycle, and oxidative phosphorylation.",
+    "Python is a high-level, dynamically-typed programming language known for its readable syntax. Key beginner topics include variables, data types (int, float, str, bool), control flow (if/else, for/while loops), functions (def keyword), and built-in data structures like lists and dictionaries.",
   keyFacts: [
-    "Photosynthesis equation: 6CO2 + 6H2O + light → C6H12O6 + 6O2",
-    "Cellular respiration equation: C6H12O6 + 6O2 → 6CO2 + 6H2O + ~32 ATP",
-    "Chloroplasts are the site of photosynthesis",
-    "Mitochondria are the site of aerobic respiration",
-    "ATP stands for adenosine triphosphate",
+    "Python uses indentation (whitespace) to define code blocks",
+    "Variables are dynamically typed — no need to declare the type",
+    "Functions are defined with `def function_name(params):`",
+    "Lists are mutable ordered collections: `my_list = [1, 2, 3]`",
+    "f-strings allow inline expressions: `f'Hello, {name}'`",
   ],
-  relatedConcepts: ["chlorophyll", "NADPH", "electron transport chain", "glycolysis", "Krebs cycle"],
-  sources: ["Wikipedia", "General knowledge"],
+  relatedConcepts: ["indentation", "dynamic typing", "built-in functions", "modules", "scope"],
+  sources: ["Python.org docs", "General knowledge"],
 };
 
 const MOCK_FLASHCARDS: Flashcard[] = [
   {
     id: "fc-1",
-    front: "What is photosynthesis?",
-    back: "The process by which plants convert sunlight into glucose using CO2 and water.",
-    concept: "Photosynthesis",
+    front: "What is a variable in Python?",
+    back: "A named container that stores a value. Example: `age = 25`",
+    concept: "Variables & Data Types",
     difficulty: "easy",
   },
   {
     id: "fc-2",
-    front: "What is ATP?",
-    back: "Adenosine triphosphate — the energy currency of the cell.",
-    concept: "ATP Production",
+    front: "What does the `def` keyword do?",
+    back: "It defines a new function. Example: `def greet(name): return f'Hello, {name}'`",
+    concept: "Functions",
     difficulty: "easy",
   },
   {
     id: "fc-3",
-    front: "Where does photosynthesis occur?",
-    back: "In the chloroplasts of plant cells.",
-    concept: "Photosynthesis",
+    front: "How do you create a list in Python?",
+    back: "Using square brackets: `my_list = [1, 2, 3]`. Lists are ordered and mutable.",
+    concept: "Lists & Iteration",
     difficulty: "easy",
   },
   {
     id: "fc-4",
-    front: "What are the two stages of photosynthesis?",
-    back: "The light reactions and the Calvin cycle.",
-    concept: "Photosynthesis",
-    difficulty: "medium",
+    front: "What is the output of `len(\"hello\")`?",
+    back: "5 — the `len()` built-in returns the number of characters in a string.",
+    concept: "String Manipulation",
+    difficulty: "easy",
   },
 ];
 
 const MOCK_QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "q-1",
-    question: "Where does photosynthesis occur?",
+    question: "Which keyword is used to define a function in Python?",
     type: "multiple_choice",
-    options: ["Mitochondria", "Chloroplast", "Nucleus", "Ribosome"],
-    correctAnswer: 1,
-    explanation: "Photosynthesis takes place in the chloroplasts, which contain chlorophyll.",
-    concept: "Photosynthesis",
+    options: ["func", "function", "def", "define"],
+    correctAnswer: 2,
+    explanation: "The `def` keyword introduces a function definition. Example: `def my_func():`",
+    concept: "Functions",
   },
   {
     id: "q-2",
-    question: "What molecule is considered the 'energy currency' of the cell?",
+    question: "What data type does `type(3.14)` return?",
     type: "multiple_choice",
-    options: ["DNA", "Glucose", "ATP", "NADPH"],
+    options: ["int", "str", "float", "double"],
     correctAnswer: 2,
-    explanation: "ATP (Adenosine Triphosphate) stores and transfers energy within cells.",
-    concept: "ATP Production",
+    explanation: "3.14 is a floating-point number, so `type(3.14)` returns `<class 'float'>`.",
+    concept: "Variables & Data Types",
   },
   {
     id: "q-3",
-    question: "Which gas is released as a byproduct of photosynthesis?",
+    question: "Which loop is used to iterate over a list in Python?",
     type: "multiple_choice",
-    options: ["Carbon dioxide", "Nitrogen", "Oxygen", "Hydrogen"],
-    correctAnswer: 2,
-    explanation: "Oxygen is released when water molecules are split during the light reactions.",
-    concept: "Photosynthesis",
+    options: ["while", "foreach", "loop", "for"],
+    correctAnswer: 3,
+    explanation: "The `for` loop iterates over any iterable. Example: `for item in my_list:`",
+    concept: "Lists & Iteration",
   },
 ];
 
 const MOCK_STUDY_GUIDE_SECTIONS: StudyGuideSection[] = [
   {
-    title: "Photosynthesis",
+    title: "Variables & Data Types",
     content:
-      "Photosynthesis converts light energy into chemical energy stored as glucose. It occurs in the chloroplasts of plant cells and requires sunlight, CO2, and water. The overall equation is: 6CO2 + 6H2O + light → C6H12O6 + 6O2.",
+      "In Python, a variable is a name that refers to a value stored in memory. You create one with a simple assignment: `x = 10`. Python is dynamically typed, meaning you don't declare the type — Python figures it out. The four core primitive types are `int` (whole numbers), `float` (decimals), `str` (text in quotes), and `bool` (`True` or `False`). Use the built-in `type()` function to inspect any value's type at runtime.",
     keyTakeaways: [
-      "Occurs in chloroplasts",
-      "Requires sunlight, CO2, and water",
-      "Produces glucose and oxygen",
+      "No type declarations needed — Python infers types automatically",
+      "Four core types: int, float, str, bool",
+      "`type(value)` tells you what type a value is",
     ],
     sources: [
-      { title: "Photosynthesis – Wikipedia", url: "https://en.wikipedia.org/wiki/Photosynthesis" },
-      { title: "Khan Academy", url: "https://www.khanacademy.org/science/ap-biology/cellular-energetics/photosynthesis/a/intro-to-photosynthesis" },
+      { title: "Python Built-in Types – Python Docs", url: "https://docs.python.org/3/library/stdtypes.html" },
+      { title: "Variables – Real Python", url: "https://realpython.com/python-variables/" },
     ],
   },
   {
-    title: "ATP Production",
+    title: "Functions",
     content:
-      "ATP (Adenosine Triphosphate) is the primary energy currency of the cell. It is produced during both photosynthesis (light reactions) and cellular respiration (oxidative phosphorylation). Each glucose molecule yields approximately 30–32 ATP.",
+      "Functions let you package a block of code under a name so you can reuse it. Define one with `def`, give it a name, list its parameters in parentheses, and indent the body. Use `return` to send a value back to the caller. If you omit `return`, the function returns `None`. Functions make code easier to read, test, and maintain by avoiding repetition.",
     keyTakeaways: [
-      "ATP = energy currency of the cell",
-      "Produced in mitochondria and chloroplasts",
-      "~30–32 ATP per glucose molecule",
+      "Define functions with `def name(params):`",
+      "Use `return` to send a result back",
+      "Functions reduce repetition and improve readability",
     ],
     sources: [
-      { title: "ATP – Wikipedia", url: "https://en.wikipedia.org/wiki/Adenosine_triphosphate" },
-      { title: "Cellular Respiration – Khan Academy", url: "https://www.khanacademy.org/science/ap-biology/cellular-energetics/cellular-respiration-ap/a/steps-of-cellular-respiration" },
+      { title: "Defining Functions – Python Docs", url: "https://docs.python.org/3/tutorial/controlflow.html#defining-functions" },
+      { title: "Functions – Real Python", url: "https://realpython.com/defining-your-own-python-function/" },
     ],
   },
 ];
 
 const MOCK_ASSESSMENT: KnowledgeGapAssessment = {
   weakConcepts: [
-    { name: "ATP Production", severity: "high" },
-    { name: "Light Reactions", severity: "medium" },
+    { name: "Functions", severity: "high" },
+    { name: "Lists & Iteration", severity: "medium" },
   ],
   strategy:
-    "Focus on the energy transfer pathways — specifically how ATP is synthesized during the light reactions and the electron transport chain. Review the relationship between NADPH and the Calvin cycle.",
+    "Focus on writing small functions from scratch and tracing through for-loops manually. Practice defining functions with parameters and return values, then iterate over lists step by step to build intuition.",
   recommendedActions: [
-    "Draw a diagram of the ATP synthesis process step by step.",
-    "Trace the path of a single electron through the light reactions.",
-    "Compare and contrast the light reactions vs. the Calvin cycle side by side.",
-    "Re-read the section on oxidative phosphorylation with focused attention.",
+    "Write a function that takes two numbers and returns their sum.",
+    "Create a list of 5 items and print each one using a for loop.",
+    "Add a default parameter to a function and call it with and without that argument.",
+    "Use the `len()` function inside a loop to track your position in a list.",
   ],
 };
 
@@ -184,12 +184,12 @@ const MOCK_ASSESSMENT: KnowledgeGapAssessment = {
 
 const MOCK_CONCEPTS = [
   {
-    name: "Photosynthesis",
-    context: "The process by which plants convert sunlight into glucose using CO2 and water.",
+    name: "Variables & Data Types",
+    context: "Named containers that store values; Python supports int, float, str, and bool with dynamic typing.",
   },
   {
-    name: "Cell Respiration",
-    context: "The process cells use to break down glucose and produce ATP.",
+    name: "Functions",
+    context: "Reusable blocks of code defined with `def` that accept parameters and return values.",
   },
 ];
 
@@ -200,6 +200,8 @@ async function callClaudeMock(prompt: string): Promise<unknown> {
 
   const lower = prompt.toLowerCase();
 
+  if (lower.startsWith("you are a topic quality checker")) return { valid: true, reason: "" };
+  if (lower.startsWith("you are a content quality checker")) return { valid: true, reason: "" };
   if (lower.startsWith("analyze the following source material")) return MOCK_ANALYSIS;
   if (lower.startsWith("you are a research assistant")) return MOCK_WEB_SEARCH;
   if (lower.startsWith("generate") && lower.includes("flashcards")) return MOCK_FLASHCARDS;
@@ -229,7 +231,7 @@ async function callClaudeWithToolsMock(
     if (turn === 0) {
       return {
         content: [
-          { type: "text", text: "I'll analyze the quiz results to identify exactly where the student struggled." },
+          { type: "text", text: "I'll analyze the quiz results to identify exactly where the student needs more practice." },
           {
             type: "tool_use",
             id: "mock-rv-1",
@@ -240,10 +242,10 @@ async function callClaudeWithToolsMock(
                 total: 3,
                 wrong_answers: [
                   {
-                    concept: "ATP Production",
-                    question: "What molecule is considered the 'energy currency' of the cell?",
-                    user_answer: "Glucose",
-                    correct_answer: "ATP",
+                    concept: "Functions",
+                    question: "Which keyword is used to define a function in Python?",
+                    user_answer: "func",
+                    correct_answer: "def",
                   },
                 ],
               },
@@ -258,7 +260,7 @@ async function callClaudeWithToolsMock(
         content: [
           {
             type: "text",
-            text: "The student scored 67% — a moderate review is appropriate. I'll generate focused flashcards for the missed concepts and a targeted retake quiz.",
+            text: "The student scored 67% — a moderate review is appropriate. I'll generate focused flashcards on Python functions and a targeted retake quiz.",
           },
           {
             type: "tool_use",
@@ -285,7 +287,7 @@ async function callClaudeWithToolsMock(
       content: [
         {
           type: "text",
-          text: "Here's your personalized review pack. You're doing well — just a bit more focus on ATP Production and you'll have it locked in!",
+          text: "Here's your personalized review pack. You're on the right track — a bit more practice with functions and you'll have it locked in!",
         },
       ],
       stop_reason: "end_turn",
@@ -315,7 +317,7 @@ async function callClaudeWithToolsMock(
       content: [
         {
           type: "text",
-          text: "The material covers biological processes with a mix of terminology and conceptual content. I'll generate flashcards for active recall of key terms, a detailed study guide for deeper understanding, and a quiz to test comprehension.",
+          text: "The material covers Python fundamentals with a mix of syntax and practical concepts. I'll generate flashcards for active recall of key syntax, a study guide for deeper understanding, and a quiz to test comprehension.",
         },
         {
           type: "tool_use",
@@ -348,7 +350,7 @@ async function callClaudeWithToolsMock(
     content: [
       {
         type: "text",
-        text: "I've analyzed your document and generated comprehensive study materials tailored to your content. You'll find flashcards for active recall, a structured study guide for deeper understanding, and a quiz to test your knowledge.",
+        text: "I've analyzed your material and generated comprehensive Python study materials. You'll find flashcards for syntax recall, a structured study guide for deeper understanding, and a quiz to test your knowledge.",
       },
     ],
     stop_reason: "end_turn",
