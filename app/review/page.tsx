@@ -240,6 +240,44 @@ export default function ReviewPage() {
                 </button>
               </div>
             )}
+
+            {/* Feel ready */}
+            <div
+              className="rounded-2xl p-8 flex flex-col items-center gap-4 text-center animate-slide-up"
+              style={{
+                background: "rgba(110,231,183,0.05)",
+                border: "1px solid rgba(110,231,183,0.2)",
+              }}
+            >
+              <p className="font-heading text-lg font-bold" style={{ color: "#e8e8f0" }}>
+                I feel ready ✓
+              </p>
+              <p className="text-sm" style={{ color: "#8888aa" }}>
+                Done reviewing? Head back or put yourself to the test.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <button
+                  onClick={() => router.push("/materials")}
+                  className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
+                  style={{ background: "#10101c", border: "1px solid #1e1e38", color: "#e8e8f0" }}
+                >
+                  ← Back to Materials
+                </button>
+                {(reviewPack.retakeQuiz?.questions ?? []).length > 0 && (
+                  <button
+                    onClick={() => setPhase("quiz")}
+                    className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
+                    style={{
+                      background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                      color: "#fff",
+                      boxShadow: "0 0 20px rgba(124,58,237,0.35)",
+                    }}
+                  >
+                    Retake Quiz ↺
+                  </button>
+                )}
+              </div>
+            </div>
           </>
         )}
 
