@@ -61,14 +61,14 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
     <div className="max-w-2xl mx-auto animate-slide-up">
       {/* Progress */}
       <div className="mb-6">
-        <div className="flex justify-between text-xs mb-2" style={{ color: "#8a7560" }}>
+        <div className="flex justify-between text-xs mb-2" style={{ color: "#7070a0" }}>
           <span>Question {index + 1} of {questions.length}</span>
-          <span style={{ color: "#d97706" }}>{question.concept}</span>
+          <span style={{ color: "#8b5cf6" }}>{question.concept}</span>
         </div>
-        <div className="w-full h-1.5 rounded-full" style={{ background: "#2a2015" }}>
+        <div className="w-full h-1.5 rounded-full" style={{ background: "#1e1e36" }}>
           <div
             className="h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #d97706, #b45309)" }}
+            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #8b5cf6, #7c3aed)" }}
           />
         </div>
       </div>
@@ -76,9 +76,9 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
       {/* Question card */}
       <div
         className="rounded-xl p-7 mb-5"
-        style={{ background: "#110e09", border: "1px solid #2a2015" }}
+        style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
       >
-        <p className="font-heading text-lg font-semibold leading-snug" style={{ color: "#f0e8d8" }}>
+        <p className="font-heading text-lg font-semibold leading-snug" style={{ color: "#e8e8f8" }}>
           {question.question}
         </p>
       </div>
@@ -95,13 +95,13 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
               style={
                 isSelected
                   ? {
-                      background: "rgba(217,119,6,0.12)",
-                      border: "1px solid rgba(217,119,6,0.65)",
-                      boxShadow: "0 0 16px rgba(217,119,6,0.15)",
+                      background: "rgba(139,92,246,0.12)",
+                      border: "1px solid rgba(139,92,246,0.65)",
+                      boxShadow: "0 0 16px rgba(139,92,246,0.15)",
                     }
                   : {
-                      background: "#110e09",
-                      border: "1px solid #2a2015",
+                      background: "#0e0e1a",
+                      border: "1px solid #1e1e36",
                     }
               }
             >
@@ -110,13 +110,13 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
                 className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold"
                 style={
                   isSelected
-                    ? { background: "#d97706", color: "#fff" }
-                    : { background: "#2a2015", color: "#8a7560" }
+                    ? { background: "#8b5cf6", color: "#fff" }
+                    : { background: "#1e1e36", color: "#7070a0" }
                 }
               >
                 {String.fromCharCode(65 + i)}
               </span>
-              <span className="text-sm leading-relaxed" style={{ color: isSelected ? "#f0e8d8" : "#c4a87a" }}>
+              <span className="text-sm leading-relaxed" style={{ color: isSelected ? "#e8e8f8" : "#94a3b8" }}>
                 {opt}
               </span>
             </button>
@@ -132,11 +132,11 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
         style={
           selected !== null
             ? {
-                background: "#d97706",
+                background: "#8b5cf6",
                 color: "#fff",
-                boxShadow: "0 0 20px rgba(217,119,6,0.4)",
+                boxShadow: "0 0 20px rgba(139,92,246,0.4)",
               }
-            : { background: "#110e09", border: "1px solid #2a2015", color: "#8a7560", cursor: "not-allowed" }
+            : { background: "#0e0e1a", border: "1px solid #1e1e36", color: "#7070a0", cursor: "not-allowed" }
         }
       >
         {isLast ? "Submit Quiz" : "Next →"}

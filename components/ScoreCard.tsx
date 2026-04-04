@@ -36,11 +36,11 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
       {/* Score ring */}
       <div
         className="rounded-xl p-8 flex flex-col items-center gap-3"
-        style={{ background: "#110e09", border: "1px solid #2a2015" }}
+        style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
       >
         <svg width="136" height="136" viewBox="0 0 136 136">
           {/* Track */}
-          <circle cx="68" cy="68" r={R} fill="none" stroke="#2a2015" strokeWidth="10" />
+          <circle cx="68" cy="68" r={R} fill="none" stroke="#1e1e36" strokeWidth="10" />
           {/* Fill */}
           <circle
             cx="68"
@@ -56,23 +56,23 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
           />
           <defs>
             <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#d97706" />
-              <stop offset="100%" stopColor="#b45309" />
+              <stop offset="0%" stopColor="#8b5cf6" />
+              <stop offset="100%" stopColor="#7c3aed" />
             </linearGradient>
           </defs>
           {/* Text */}
-          <text x="68" y="62" textAnchor="middle" fill="#f0e8d8" fontSize="22" fontWeight="700" fontFamily="var(--font-heading)">
+          <text x="68" y="62" textAnchor="middle" fill="#e8e8f8" fontSize="22" fontWeight="700" fontFamily="var(--font-heading)">
             {score}/{totalQuestions}
           </text>
-          <text x="68" y="82" textAnchor="middle" fill="#d97706" fontSize="14" fontFamily="var(--font-body)">
+          <text x="68" y="82" textAnchor="middle" fill="#8b5cf6" fontSize="14" fontFamily="var(--font-body)">
             {pct}%
           </text>
         </svg>
 
-        <p className="font-heading text-xl font-bold" style={{ color: "#f0e8d8" }}>
+        <p className="font-heading text-xl font-bold" style={{ color: "#e8e8f8" }}>
           {pct >= 80 ? "Great work!" : pct >= 50 ? "Good effort!" : "Keep practicing!"}
         </p>
-        <p className="text-sm" style={{ color: "#8a7560" }}>
+        <p className="text-sm" style={{ color: "#7070a0" }}>
           Round {result.round} · {score} correct out of {totalQuestions} questions
         </p>
       </div>
@@ -81,9 +81,9 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
       {missedConcepts.length > 0 && (
         <div
           className="rounded-xl p-5"
-          style={{ background: "#110e09", border: "1px solid #2a2015" }}
+          style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
         >
-          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "#8a7560" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "#7070a0" }}>
             Concepts to Review
           </p>
           <div className="flex flex-wrap gap-2">
@@ -92,9 +92,9 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
                 key={c}
                 className="px-3 py-1 rounded text-xs font-medium"
                 style={{
-                  background: "rgba(184,82,82,0.1)",
-                  border: "1px solid rgba(184,82,82,0.28)",
-                  color: "#e08080",
+                  background: "rgba(248,113,113,0.1)",
+                  border: "1px solid rgba(248,113,113,0.28)",
+                  color: "#f87171",
                 }}
               >
                 {c}
@@ -107,7 +107,7 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
       {/* Wrong answer breakdown */}
       {wrongAnswers.length > 0 && (
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "#8a7560" }}>
+          <p className="text-xs font-semibold uppercase tracking-widest px-1" style={{ color: "#7070a0" }}>
             Wrong Answers
           </p>
           {wrongAnswers.map((wa) => {
@@ -117,10 +117,10 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
               <div
                 key={wa.questionId}
                 className="rounded-xl p-5 space-y-3"
-                style={{ background: "#110e09", border: "1px solid #2a2015" }}
+                style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
               >
                 {/* Question */}
-                <p className="text-sm font-medium leading-relaxed" style={{ color: "#f0e8d8" }}>
+                <p className="text-sm font-medium leading-relaxed" style={{ color: "#e8e8f8" }}>
                   {q.question}
                 </p>
 
@@ -128,13 +128,13 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
                 <div className="flex items-start gap-2.5">
                   <span
                     className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center text-xs font-bold"
-                    style={{ background: "rgba(184,82,82,0.18)", color: "#d46060" }}
+                    style={{ background: "rgba(248,113,113,0.18)", color: "#f87171" }}
                   >
                     ✗
                   </span>
                   <div>
-                    <p className="text-xs mb-0.5" style={{ color: "#8a7560" }}>Your answer</p>
-                    <p className="text-sm" style={{ color: "#e08080" }}>
+                    <p className="text-xs mb-0.5" style={{ color: "#7070a0" }}>Your answer</p>
+                    <p className="text-sm" style={{ color: "#f87171" }}>
                       {wa.userAnswer === -1 ? "Not answered" : q.options[wa.userAnswer]}
                     </p>
                   </div>
@@ -144,23 +144,23 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
                 <div className="flex items-start gap-2.5">
                   <span
                     className="mt-0.5 flex-shrink-0 w-5 h-5 flex items-center justify-center text-xs font-bold"
-                    style={{ background: "rgba(90,154,90,0.18)", color: "#6abf6a" }}
+                    style={{ background: "rgba(74,222,128,0.18)", color: "#4ade80" }}
                   >
                     ✓
                   </span>
                   <div>
-                    <p className="text-xs mb-0.5" style={{ color: "#8a7560" }}>Correct answer</p>
-                    <p className="text-sm" style={{ color: "#6abf6a" }}>{q.options[wa.correctAnswer]}</p>
+                    <p className="text-xs mb-0.5" style={{ color: "#7070a0" }}>Correct answer</p>
+                    <p className="text-sm" style={{ color: "#4ade80" }}>{q.options[wa.correctAnswer]}</p>
                   </div>
                 </div>
 
                 {/* Explanation */}
                 <div
                   className="rounded-lg px-4 py-3"
-                  style={{ background: "rgba(217,119,6,0.06)", border: "1px solid rgba(217,119,6,0.18)" }}
+                  style={{ background: "rgba(139,92,246,0.06)", border: "1px solid rgba(139,92,246,0.18)" }}
                 >
-                  <p className="text-xs font-medium mb-1" style={{ color: "#d97706" }}>Explanation</p>
-                  <p className="text-sm leading-relaxed" style={{ color: "#fcd34d" }}>{q.explanation}</p>
+                  <p className="text-xs font-medium mb-1" style={{ color: "#8b5cf6" }}>Explanation</p>
+                  <p className="text-sm leading-relaxed" style={{ color: "#a78bfa" }}>{q.explanation}</p>
                 </div>
               </div>
             );
@@ -173,13 +173,13 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
         <div
           className="rounded-xl p-6 text-center"
           style={{
-            background: "rgba(90,154,90,0.05)",
-            border: "1px solid rgba(90,154,90,0.22)",
+            background: "rgba(74,222,128,0.05)",
+            border: "1px solid rgba(74,222,128,0.22)",
           }}
         >
           <p className="text-2xl mb-1">🎉</p>
-          <p className="font-heading font-semibold" style={{ color: "#6abf6a" }}>Perfect score!</p>
-          <p className="text-sm mt-1" style={{ color: "#8a7560" }}>You nailed every question.</p>
+          <p className="font-heading font-semibold" style={{ color: "#4ade80" }}>Perfect score!</p>
+          <p className="text-sm mt-1" style={{ color: "#7070a0" }}>You nailed every question.</p>
         </div>
       )}
 
@@ -197,11 +197,11 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
             className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200"
             style={
               reviewLoading
-                ? { background: "rgba(217,119,6,0.3)", color: "rgba(255,255,255,0.4)", cursor: "not-allowed" }
+                ? { background: "rgba(139,92,246,0.3)", color: "rgba(255,255,255,0.4)", cursor: "not-allowed" }
                 : {
-                    background: "#d97706",
+                    background: "#8b5cf6",
                     color: "#fff",
-                    boxShadow: "0 0 20px rgba(217,119,6,0.35)",
+                    boxShadow: "0 0 20px rgba(139,92,246,0.35)",
                   }
             }
           >
@@ -213,7 +213,7 @@ export default function ScoreCard({ result, questions, allResults, onReview, onB
         <button
           onClick={onBack}
           className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
-          style={{ background: "#110e09", border: "1px solid #2a2015", color: "#f0e8d8" }}
+          style={{ background: "#0e0e1a", border: "1px solid #1e1e36", color: "#e8e8f8" }}
         >
           ← Back to Materials
         </button>

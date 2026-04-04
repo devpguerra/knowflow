@@ -53,29 +53,29 @@ export default function MaterialsPage() {
 
   if (!materials || !analysis) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 page-enter" style={{ background: "#080604" }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 page-enter" style={{ background: "#08080f" }}>
         <div className="text-center max-w-sm">
           <div
             className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center"
-            style={{ background: "rgba(217,119,6,0.12)" }}
+            style={{ background: "rgba(139,92,246,0.12)" }}
           >
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
             </svg>
           </div>
-          <h2 className="font-heading text-xl font-bold mb-2" style={{ color: "#f0e8d8" }}>
+          <h2 className="font-heading text-xl font-bold mb-2" style={{ color: "#e8e8f8" }}>
             No materials yet
           </h2>
-          <p className="text-sm mb-6" style={{ color: "#8a7560" }}>
+          <p className="text-sm mb-6" style={{ color: "#7070a0" }}>
             Upload a document on the home page to generate your study materials.
           </p>
           <button
             onClick={() => router.replace("/")}
             className="px-6 py-2.5 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
             style={{
-              background: "#d97706",
+              background: "#8b5cf6",
               color: "#fff",
-              boxShadow: "0 0 16px rgba(217,119,6,0.4)",
+              boxShadow: "0 0 16px rgba(139,92,246,0.4)",
             }}
           >
             Go to Upload
@@ -110,23 +110,23 @@ export default function MaterialsPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen page-enter" style={{ background: "#080604" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#08080f" }}>
 
       {/* Top bar */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
-          background: "rgba(8,6,4,0.88)",
-          borderBottom: "1px solid #2a2015",
+          background: "rgba(8,8,15,0.88)",
+          borderBottom: "1px solid #1e1e36",
           backdropFilter: "blur(12px)",
         }}
       >
         <button
           onClick={handleBack}
           className="flex items-center gap-1.5 text-sm transition-colors duration-150"
-          style={{ color: "#8a7560" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#f0e8d8")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#8a7560")}
+          style={{ color: "#7070a0" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f8")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#7070a0")}
         >
           <ArrowLeft /> New document
         </button>
@@ -140,9 +140,9 @@ export default function MaterialsPage() {
             disabled={exporting}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150"
             style={{
-              background: "#110e09",
-              border: "1px solid #2a2015",
-              color: "#f0e8d8",
+              background: "#0e0e1a",
+              border: "1px solid #1e1e36",
+              color: "#e8e8f8",
             }}
           >
             {exporting ? <Spinner /> : <ExportIcon />}
@@ -154,8 +154,8 @@ export default function MaterialsPage() {
             <div
               className="absolute right-0 mt-2 w-52 rounded-xl overflow-hidden z-30"
               style={{
-                background: "#1a150e",
-                border: "1px solid #2a2015",
+                background: "#151526",
+                border: "1px solid #1e1e36",
                 boxShadow: "0 12px 32px rgba(0,0,0,0.7)",
               }}
             >
@@ -179,22 +179,22 @@ export default function MaterialsPage() {
         {availableTabs.length > 0 && (
           <div
             className="flex gap-1 mb-6"
-            style={{ borderBottom: "1px solid #2a2015" }}
+            style={{ borderBottom: "1px solid #1e1e36" }}
           >
             {availableTabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
                 className="relative px-4 pb-3 pt-1 text-sm font-medium transition-colors duration-150 flex items-center gap-1.5"
-                style={{ color: tab === t.id ? "#f0e8d8" : "#8a7560" }}
+                style={{ color: tab === t.id ? "#e8e8f8" : "#7070a0" }}
               >
                 {t.label}
                 {t.id === "cards" && materials.flashcards && (
                   <span
                     className="px-1.5 py-0.5 rounded text-xs"
                     style={{
-                      background: tab === t.id ? "rgba(217,119,6,0.2)" : "rgba(90,77,62,0.3)",
-                      color: tab === t.id ? "#f59e0b" : "#8a7560",
+                      background: tab === t.id ? "rgba(139,92,246,0.2)" : "rgba(64,64,104,0.3)",
+                      color: tab === t.id ? "#60a5fa" : "#7070a0",
                     }}
                   >
                     {materials.flashcards.length}
@@ -203,7 +203,7 @@ export default function MaterialsPage() {
                 {tab === t.id && (
                   <span
                     className="absolute bottom-[-1px] left-0 right-0"
-                    style={{ height: 2, background: "#d97706", borderRadius: "2px 2px 0 0" }}
+                    style={{ height: 2, background: "#8b5cf6", borderRadius: "2px 2px 0 0" }}
                   />
                 )}
               </button>
@@ -223,19 +223,19 @@ export default function MaterialsPage() {
         {tab === "quiz" && materials.quiz && (
           <div
             className="rounded-xl p-10 flex flex-col items-center gap-5 text-center animate-slide-up"
-            style={{ background: "#110e09", border: "1px solid #2a2015" }}
+            style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
           >
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center"
-              style={{ background: "rgba(217,119,6,0.12)" }}
+              style={{ background: "rgba(139,92,246,0.12)" }}
             >
               <QuizIcon />
             </div>
             <div>
-              <h3 className="font-heading text-xl font-bold mb-2" style={{ color: "#f0e8d8" }}>
+              <h3 className="font-heading text-xl font-bold mb-2" style={{ color: "#e8e8f8" }}>
                 Ready to test yourself?
               </h3>
-              <p className="text-sm" style={{ color: "#8a7560" }}>
+              <p className="text-sm" style={{ color: "#7070a0" }}>
                 {materials.quiz.questions.length} questions · adaptive review after
               </p>
             </div>
@@ -243,9 +243,9 @@ export default function MaterialsPage() {
               onClick={() => router.push("/quiz")}
               className="px-8 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
               style={{
-                background: "#d97706",
+                background: "#8b5cf6",
                 color: "#fff",
-                boxShadow: "0 0 20px rgba(217,119,6,0.4)",
+                boxShadow: "0 0 20px rgba(139,92,246,0.4)",
               }}
             >
               Start Quiz →
@@ -272,8 +272,8 @@ function DropdownItem({
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150"
-      style={{ color: "#f0e8d8" }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(217,119,6,0.08)")}
+      style={{ color: "#e8e8f8" }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(139,92,246,0.08)")}
       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
     >
       {icon}
@@ -321,7 +321,7 @@ function ExportIcon() {
 
 function CsvIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6abf6a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <path d="M3 9h18M3 15h18M9 3v18" />
     </svg>
@@ -330,7 +330,7 @@ function CsvIcon() {
 
 function PdfIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
       <polyline points="14 2 14 8 20 8" />
     </svg>
@@ -339,7 +339,7 @@ function PdfIcon() {
 
 function QuizIcon() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
       <line x1="12" y1="17" x2="12.01" y2="17" />

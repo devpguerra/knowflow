@@ -42,16 +42,16 @@ export default function FlashcardDeck({ flashcards }: Props) {
     <div className="flex flex-col items-center gap-5">
       {/* Progress bar */}
       <div className="w-full max-w-lg">
-        <div className="flex justify-between text-xs mb-1.5" style={{ color: "#8a7560" }}>
+        <div className="flex justify-between text-xs mb-1.5" style={{ color: "#7070a0" }}>
           <span>Card {index + 1} of {flashcards.length}</span>
           <span>{knownCount} known</span>
         </div>
-        <div className="w-full h-1.5 rounded-full" style={{ background: "#2a2015" }}>
+        <div className="w-full h-1.5 rounded-full" style={{ background: "#1e1e36" }}>
           <div
             className="h-1.5 rounded-full"
             style={{
               width: `${pct}%`,
-              background: "linear-gradient(90deg, #d97706, #b45309)",
+              background: "linear-gradient(90deg, #8b5cf6, #7c3aed)",
               transition: "width 0.5s ease",
             }}
           />
@@ -83,8 +83,8 @@ export default function FlashcardDeck({ flashcards }: Props) {
               inset: 0,
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
-              background: "#110e09",
-              border: "1px solid #2a2015",
+              background: "#0e0e1a",
+              border: "1px solid #1e1e36",
               borderRadius: "12px",
               display: "flex",
               flexDirection: "column",
@@ -94,13 +94,13 @@ export default function FlashcardDeck({ flashcards }: Props) {
               boxShadow: "0 8px 40px rgba(0,0,0,0.5)",
             }}
           >
-            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8a7560" }}>
+            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#7070a0" }}>
               {card.concept}
             </p>
-            <p className="font-heading text-xl font-semibold text-center leading-snug" style={{ color: "#f0e8d8" }}>
+            <p className="font-heading text-xl font-semibold text-center leading-snug" style={{ color: "#e8e8f8" }}>
               {card.front}
             </p>
-            <p className="text-xs mt-6" style={{ color: "#8a7560" }}>
+            <p className="text-xs mt-6" style={{ color: "#7070a0" }}>
               Tap to reveal answer
             </p>
           </div>
@@ -113,21 +113,21 @@ export default function FlashcardDeck({ flashcards }: Props) {
               backfaceVisibility: "hidden",
               WebkitBackfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
-              background: "linear-gradient(135deg, #1e1505 0%, #110e09 100%)",
-              border: "1px solid rgba(217,119,6,0.4)",
+              background: "linear-gradient(135deg, #0f0f2a 0%, #0e0e1a 100%)",
+              border: "1px solid rgba(139,92,246,0.4)",
               borderRadius: "12px",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               padding: "2rem",
-              boxShadow: "0 8px 40px rgba(217,119,6,0.12)",
+              boxShadow: "0 8px 40px rgba(139,92,246,0.12)",
             }}
           >
-            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#d97706" }}>
+            <p className="text-xs font-medium uppercase tracking-widest mb-4" style={{ color: "#8b5cf6" }}>
               Answer · {card.difficulty}
             </p>
-            <p className="text-base text-center leading-relaxed" style={{ color: "#f0e8d8" }}>
+            <p className="text-base text-center leading-relaxed" style={{ color: "#e8e8f8" }}>
               {card.back}
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function FlashcardDeck({ flashcards }: Props) {
           onClick={() => go(-1)}
           disabled={index === 0}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 disabled:opacity-30"
-          style={{ background: "#110e09", border: "1px solid #2a2015", color: "#f0e8d8" }}
+          style={{ background: "#0e0e1a", border: "1px solid #1e1e36", color: "#e8e8f8" }}
         >
           ← Prev
         </button>
@@ -150,8 +150,8 @@ export default function FlashcardDeck({ flashcards }: Props) {
           className="flex-1 py-2 rounded-xl text-sm font-medium transition-all duration-200"
           style={
             isKnown
-              ? { background: "rgba(90,154,90,0.15)", border: "1px solid rgba(90,154,90,0.4)", color: "#6abf6a" }
-              : { background: "#110e09", border: "1px solid #2a2015", color: "#8a7560" }
+              ? { background: "rgba(74,222,128,0.15)", border: "1px solid rgba(74,222,128,0.4)", color: "#4ade80" }
+              : { background: "#0e0e1a", border: "1px solid #1e1e36", color: "#7070a0" }
           }
         >
           {isKnown ? "✓ Known" : "Mark as known"}
@@ -161,7 +161,7 @@ export default function FlashcardDeck({ flashcards }: Props) {
           onClick={() => go(1)}
           disabled={index === flashcards.length - 1}
           className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 disabled:opacity-30"
-          style={{ background: "#110e09", border: "1px solid #2a2015", color: "#f0e8d8" }}
+          style={{ background: "#0e0e1a", border: "1px solid #1e1e36", color: "#e8e8f8" }}
         >
           Next →
         </button>
@@ -171,9 +171,9 @@ export default function FlashcardDeck({ flashcards }: Props) {
       <span
         className="px-2.5 py-0.5 rounded text-xs font-medium"
         style={{
-          background: "rgba(217,119,6,0.1)",
-          border: "1px solid rgba(217,119,6,0.25)",
-          color: "#f59e0b",
+          background: "rgba(139,92,246,0.1)",
+          border: "1px solid rgba(139,92,246,0.25)",
+          color: "#60a5fa",
         }}
       >
         {card.concept}
