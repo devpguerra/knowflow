@@ -61,24 +61,24 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
     <div className="max-w-2xl mx-auto animate-slide-up">
       {/* Progress */}
       <div className="mb-6">
-        <div className="flex justify-between text-xs mb-2" style={{ color: "#8888aa" }}>
+        <div className="flex justify-between text-xs mb-2" style={{ color: "#7070a0" }}>
           <span>Question {index + 1} of {questions.length}</span>
-          <span style={{ color: "#c4b5fd" }}>{question.concept}</span>
+          <span style={{ color: "#8b5cf6" }}>{question.concept}</span>
         </div>
-        <div className="w-full h-1.5 rounded-full" style={{ background: "#1e1e38" }}>
+        <div className="w-full h-1.5 rounded-full" style={{ background: "#1e1e36" }}>
           <div
             className="h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #7c3aed, #4f46e5)" }}
+            style={{ width: `${progress}%`, background: "linear-gradient(90deg, #8b5cf6, #7c3aed)" }}
           />
         </div>
       </div>
 
       {/* Question card */}
       <div
-        className="rounded-2xl p-7 mb-5"
-        style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+        className="rounded-xl p-7 mb-5"
+        style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
       >
-        <p className="font-heading text-lg font-semibold leading-snug" style={{ color: "#e8e8f0" }}>
+        <p className="font-heading text-lg font-semibold leading-snug" style={{ color: "#e8e8f8" }}>
           {question.question}
         </p>
       </div>
@@ -95,28 +95,28 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
               style={
                 isSelected
                   ? {
-                      background: "rgba(124,58,237,0.18)",
-                      border: "1px solid rgba(124,58,237,0.7)",
-                      boxShadow: "0 0 16px rgba(124,58,237,0.2)",
+                      background: "rgba(139,92,246,0.12)",
+                      border: "1px solid rgba(139,92,246,0.65)",
+                      boxShadow: "0 0 16px rgba(139,92,246,0.15)",
                     }
                   : {
-                      background: "#10101c",
-                      border: "1px solid #1e1e38",
+                      background: "#0e0e1a",
+                      border: "1px solid #1e1e36",
                     }
               }
             >
               {/* Option letter */}
               <span
-                className="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
+                className="flex-shrink-0 w-7 h-7 flex items-center justify-center text-xs font-bold"
                 style={
                   isSelected
-                    ? { background: "#7c3aed", color: "#fff" }
-                    : { background: "#1e1e38", color: "#8888aa" }
+                    ? { background: "#8b5cf6", color: "#fff" }
+                    : { background: "#1e1e36", color: "#7070a0" }
                 }
               >
                 {String.fromCharCode(65 + i)}
               </span>
-              <span className="text-sm leading-relaxed" style={{ color: isSelected ? "#e8e8f0" : "#b8b8cc" }}>
+              <span className="text-sm leading-relaxed" style={{ color: isSelected ? "#e8e8f8" : "#94a3b8" }}>
                 {opt}
               </span>
             </button>
@@ -132,11 +132,11 @@ export default function QuizRunner({ questions, round, onComplete }: Props) {
         style={
           selected !== null
             ? {
-                background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                background: "#8b5cf6",
                 color: "#fff",
-                boxShadow: "0 0 20px rgba(124,58,237,0.4)",
+                boxShadow: "0 0 20px rgba(139,92,246,0.4)",
               }
-            : { background: "#10101c", border: "1px solid #1e1e38", color: "#8888aa", cursor: "not-allowed" }
+            : { background: "#0e0e1a", border: "1px solid #1e1e36", color: "#7070a0", cursor: "not-allowed" }
         }
       >
         {isLast ? "Submit Quiz" : "Next →"}

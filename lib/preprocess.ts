@@ -130,3 +130,101 @@ export function preprocessDocument(
 
   return { condensedText: structureNote + condensedBody, headings };
 }
+
+// ── Topic validation ───────────────────────────────────────────────────────
+
+const NON_EDUCATIONAL_WORDS = new Set([
+  "him","her","it","they","me","i","we","you","she","he",
+  "a","an","the",
+  "in","on","at","by","of","to","up","as","or","so","but",
+]);
+
+const TOPIC_REJECTION_MSG =
+  "Please provide a more specific study topic (e.g., 'Photosynthesis', 'World War II', 'Python decorators').";
+
+/**
+ * Fast, no-API programmatic topic check.
+ * Rejects topics that are too short or a single non-educational stop word.
+ */
+export function validateTopicFast(raw: string): { valid: boolean; reason: string } {
+  const trimmed = raw.trim();
+  if (trimmed.length < 3) return { valid: false, reason: TOPIC_REJECTION_MSG };
+  const words = trimmed.toLowerCase().split(/\s+/);
+  if (words.length === 1 && NON_EDUCATIONAL_WORDS.has(words[0])) {
+    return { valid: false, reason: TOPIC_REJECTION_MSG };
+  }
+  return { valid: true, reason: "" };
+}
+
+/**
+ * Claude-based topic quality check.
+ * Catches gibberish and vague inputs that pass the programmatic check.
+ */
+export async function validateTopicWithModel(
+  topic: string
+): Promise<{ valid: boolean; reason: string }> {
+  const { callClaude } = await import("./claude");
+  const prompt = `You are a topic quality checker for a study material generator.
+
+Determine if the following input is a coherent study topic that a student could meaningfully learn about.
+
+Reject inputs that are:
+- Random characters or gibberish (e.g., "asdfgh", "xyz123")
+- Single pronouns, articles, or prepositions used without context (e.g., "him", "the", "at")
+- Completely vague with no educational meaning (e.g., "stuff", "things")
+- So broad or abstract that no meaningful study materials could be generated
+
+Accept inputs that are:
+- Any subject, concept, event, person, or field of study (e.g., "Photosynthesis", "World War II", "Python decorators", "Keynesian economics")
+- Even narrow or highly specific topics are fine
+- Partial phrases with clear educational intent are fine
+
+Topic: "${topic}"
+
+Respond ONLY with valid JSON, no markdown fences:
+{"valid": true or false, "reason": "one sentence shown to the user if invalid — suggest they try a more specific topic"}`;
+
+  const result = await callClaude(prompt);
+  return result as { valid: boolean; reason: string };
+}
+
+/**
+ * Quick Claude-based content quality check.
+ * Sends only the first 3 000 chars to keep it fast and cheap.
+ * Returns { valid: true } for learnable content, { valid: false, reason } for garbage.
+ */
+export async function validateContent(
+  text: string
+): Promise<{ valid: boolean; reason: string }> {
+  const { callClaude } = await import("./claude");
+  const sample = text.slice(0, 3000);
+  const prompt = `You are a content quality checker for a study material generator.
+
+Examine the following text sample and determine if it contains meaningful educational or informational content that a student could learn from.
+
+Reject content that is:
+- Configuration files, environment variables, or settings files
+- Log output, stack traces, or debugging output
+- Mostly repetitive or duplicate text (copy-pasted lines, boilerplate)
+- Binary or machine-generated gibberish (random characters, encoded data)
+- Extremely sparse or near-empty (fewer than ~50 meaningful words)
+- Pure code with no explanatory comments or documentation value
+- Data exports (CSV rows, JSON arrays of records, database dumps)
+
+Accept content that is:
+- Educational text: articles, textbook chapters, notes, documentation
+- Explanatory prose about any topic
+- Technical content with explanations (tutorials, guides, papers)
+- Even short but meaningful text that explains a concept
+
+Text sample:
+"""
+${sample}
+"""
+
+Respond ONLY with valid JSON, no markdown fences:
+{"valid": true or false, "reason": "one sentence explaining why (shown to user if invalid)"}`;
+
+  const result = await callClaude(prompt);
+  return result as { valid: boolean; reason: string };
+}

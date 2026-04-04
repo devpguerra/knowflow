@@ -75,23 +75,23 @@ export default function ReviewPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#08080f" }}>
 
       {/* Header */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
-          background: "rgba(7,7,15,0.85)",
-          borderBottom: "1px solid #1e1e38",
+          background: "rgba(8,8,15,0.88)",
+          borderBottom: "1px solid #1e1e36",
           backdropFilter: "blur(12px)",
         }}
       >
         <button
           onClick={() => router.push("/materials")}
           className="flex items-center gap-1.5 text-sm transition-colors duration-150"
-          style={{ color: "#8888aa" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#8888aa")}
+          style={{ color: "#7070a0" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f8")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#7070a0")}
         >
           <ArrowLeft />
           Materials
@@ -100,11 +100,11 @@ export default function ReviewPage() {
         <div className="flex-1" />
 
         <span
-          className="px-3 py-1 rounded-full text-xs font-medium"
+          className="px-3 py-1 text-xs font-medium"
           style={{
-            background: "rgba(124,58,237,0.15)",
-            border: "1px solid rgba(124,58,237,0.3)",
-            color: "#a78bfa",
+            background: "rgba(139,92,246,0.1)",
+            border: "1px solid rgba(139,92,246,0.3)",
+            color: "#8b5cf6",
           }}
         >
           Adaptive Review
@@ -118,10 +118,10 @@ export default function ReviewPage() {
           <>
             {/* Page title */}
             <div className="text-center mb-2 animate-slide-up">
-              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f0" }}>
+              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f8" }}>
                 Focused Review
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
+              <p className="text-sm mt-1" style={{ color: "#7070a0" }}>
                 Targeted material based on your weak areas
               </p>
             </div>
@@ -131,19 +131,19 @@ export default function ReviewPage() {
 
             {/* Weak area summary */}
             <div
-              className="rounded-2xl p-6 animate-slide-up"
-              style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+              className="rounded-xl p-6 animate-slide-up"
+              style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
             >
               <div className="flex items-center gap-2 mb-3">
                 <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
-                  style={{ background: "#f87171" }}
+                  className="w-2 h-2 flex-shrink-0"
+                  style={{ background: "#f87171", transform: "rotate(45deg)" }}
                 />
-                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#8888aa" }}>
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#7070a0" }}>
                   Weak Area Summary
                 </p>
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: "#b8b8cc" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "#94a3b8" }}>
                 {reviewPack.assessment.strategy}
               </p>
             </div>
@@ -151,15 +151,15 @@ export default function ReviewPage() {
             {/* Recommended actions */}
             {(reviewPack.assessment.recommendedActions ?? []).length > 0 && (
               <div
-                className="rounded-2xl p-6 animate-slide-up"
+                className="rounded-xl p-6 animate-slide-up"
                 style={{
-                  background: "rgba(124,58,237,0.07)",
-                  border: "1px solid rgba(124,58,237,0.25)",
+                  background: "rgba(139,92,246,0.05)",
+                  border: "1px solid rgba(139,92,246,0.2)",
                 }}
               >
                 <p
                   className="text-xs font-semibold uppercase tracking-widest mb-3"
-                  style={{ color: "#a78bfa" }}
+                  style={{ color: "#8b5cf6" }}
                 >
                   Recommended Actions
                 </p>
@@ -167,12 +167,16 @@ export default function ReviewPage() {
                   {(reviewPack.assessment.recommendedActions ?? []).map((action, i) => (
                     <li key={i} className="flex items-start gap-2.5">
                       <span
-                        className="flex-shrink-0 mt-1 w-5 h-5 rounded-lg flex items-center justify-center text-xs font-bold"
-                        style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
+                        className="flex-shrink-0 mt-1 w-5 h-5 flex items-center justify-center text-xs font-bold"
+                        style={{
+                          background: "rgba(139,92,246,0.15)",
+                          color: "#8b5cf6",
+                          border: "1px solid rgba(139,92,246,0.3)",
+                        }}
                       >
                         {i + 1}
                       </span>
-                      <span className="text-sm leading-relaxed" style={{ color: "#c4b5fd" }}>
+                      <span className="text-sm leading-relaxed" style={{ color: "#a78bfa" }}>
                         {action}
                       </span>
                     </li>
@@ -186,7 +190,7 @@ export default function ReviewPage() {
               <div className="animate-slide-up">
                 <p
                   className="text-xs font-semibold uppercase tracking-widest mb-4 px-1"
-                  style={{ color: "#8888aa" }}
+                  style={{ color: "#7070a0" }}
                 >
                   Simplified Study Guide
                 </p>
@@ -199,7 +203,7 @@ export default function ReviewPage() {
               <div className="animate-slide-up">
                 <p
                   className="text-xs font-semibold uppercase tracking-widest mb-4 px-1"
-                  style={{ color: "#8888aa" }}
+                  style={{ color: "#7070a0" }}
                 >
                   Focused Flashcards · {(reviewPack.focusedFlashcards ?? []).length} cards
                 </p>
@@ -210,20 +214,20 @@ export default function ReviewPage() {
             {/* Retake CTA */}
             {(reviewPack.retakeQuiz?.questions ?? []).length > 0 && (
               <div
-                className="rounded-2xl p-8 flex flex-col items-center gap-4 text-center animate-slide-up"
-                style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+                className="rounded-xl p-8 flex flex-col items-center gap-4 text-center animate-slide-up"
+                style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                  style={{ background: "rgba(124,58,237,0.15)" }}
+                  style={{ background: "rgba(139,92,246,0.12)" }}
                 >
                   <TargetIcon />
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-bold mb-1" style={{ color: "#e8e8f0" }}>
+                  <h3 className="font-heading text-lg font-bold mb-1" style={{ color: "#e8e8f8" }}>
                     Retake Quiz
                   </h3>
-                  <p className="text-sm" style={{ color: "#8888aa" }}>
+                  <p className="text-sm" style={{ color: "#7070a0" }}>
                     {(reviewPack.retakeQuiz?.questions ?? []).length} targeted questions on your weak areas
                   </p>
                 </div>
@@ -231,15 +235,53 @@ export default function ReviewPage() {
                   onClick={() => setPhase("quiz")}
                   className="px-8 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
                   style={{
-                    background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                    background: "#8b5cf6",
                     color: "#fff",
-                    boxShadow: "0 0 20px rgba(124,58,237,0.4)",
+                    boxShadow: "0 0 20px rgba(139,92,246,0.4)",
                   }}
                 >
                   Start Retake →
                 </button>
               </div>
             )}
+
+            {/* Feel ready */}
+            <div
+              className="rounded-xl p-8 flex flex-col items-center gap-4 text-center animate-slide-up"
+              style={{
+                background: "rgba(74,222,128,0.05)",
+                border: "1px solid rgba(74,222,128,0.2)",
+              }}
+            >
+              <p className="font-heading text-lg font-bold" style={{ color: "#e8e8f8" }}>
+                I feel ready ✓
+              </p>
+              <p className="text-sm" style={{ color: "#7070a0" }}>
+                Done reviewing? Head back or put yourself to the test.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 w-full">
+                <button
+                  onClick={() => router.push("/materials")}
+                  className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
+                  style={{ background: "#0e0e1a", border: "1px solid #1e1e36", color: "#e8e8f8" }}
+                >
+                  ← Back to Materials
+                </button>
+                {(reviewPack.retakeQuiz?.questions ?? []).length > 0 && (
+                  <button
+                    onClick={() => setPhase("quiz")}
+                    className="flex-1 py-3 rounded-xl font-heading font-semibold text-sm transition-all duration-200"
+                    style={{
+                      background: "#8b5cf6",
+                      color: "#fff",
+                      boxShadow: "0 0 20px rgba(139,92,246,0.3)",
+                    }}
+                  >
+                    Retake Quiz ↺
+                  </button>
+                )}
+              </div>
+            </div>
           </>
         )}
 
@@ -248,19 +290,19 @@ export default function ReviewPage() {
           <>
             <div className="text-center mb-2 animate-slide-up">
               <div
-                className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-medium tracking-widest uppercase"
+                className="inline-flex items-center gap-2 mb-3 px-3 py-1 text-xs font-medium tracking-widest uppercase"
                 style={{
-                  background: "rgba(124,58,237,0.15)",
-                  border: "1px solid rgba(124,58,237,0.3)",
-                  color: "#a78bfa",
+                  background: "rgba(139,92,246,0.1)",
+                  border: "1px solid rgba(139,92,246,0.3)",
+                  color: "#8b5cf6",
                 }}
               >
                 Round {retakeRound} · Retake
               </div>
-              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f0" }}>
+              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f8" }}>
                 Targeted Quiz
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
+              <p className="text-sm mt-1" style={{ color: "#7070a0" }}>
                 {reviewPack.retakeQuiz?.questions.length ?? 0} questions focused on weak areas
               </p>
             </div>
@@ -277,10 +319,10 @@ export default function ReviewPage() {
         {phase === "score" && retakeResult && (
           <>
             <div className="text-center mb-2 animate-slide-up">
-              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f0" }}>
+              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f8" }}>
                 Retake Complete
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
+              <p className="text-sm mt-1" style={{ color: "#7070a0" }}>
                 Round {retakeResult.round} · here&apos;s how you did
               </p>
             </div>
@@ -313,7 +355,7 @@ function ArrowLeft() {
 
 function TargetIcon() {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="10" />
       <circle cx="12" cy="12" r="6" />
       <circle cx="12" cy="12" r="2" />

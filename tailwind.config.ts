@@ -10,22 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["var(--font-heading)", "system-ui", "sans-serif"],
+        heading: ["var(--font-heading)", "Georgia", "serif"],
         body: ["var(--font-body)", "system-ui", "sans-serif"],
       },
       colors: {
-        bg: "#07070f",
-        surface: "#10101c",
-        "surface-raised": "#16162a",
-        border: "#1e1e38",
-        accent: "#7c3aed",
-        "accent-hover": "#6d28d9",
-        "text-muted": "#8888aa",
+        bg: "#08080f",
+        surface: "#0e0e1a",
+        "surface-raised": "#151526",
+        border: "#1e1e36",
+        accent: "#8b5cf6",
+        "accent-hover": "#7c3aed",
+        "text-muted": "#7070a0",
       },
       animation: {
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "fade-in": "fadeIn 0.4s ease forwards",
         "slide-up": "slideUp 0.4s ease forwards",
+        "amber-pulse": "amberPulse 2.5s ease-in-out infinite",
       },
       keyframes: {
         fadeIn: {
@@ -35,6 +36,10 @@ const config: Config = {
         slideUp: {
           "0%": { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        amberPulse: {
+          "0%, 100%": { boxShadow: "0 0 20px rgba(139,92,246,0.3)" },
+          "50%": { boxShadow: "0 0 40px rgba(139,92,246,0.55)" },
         },
       },
     },

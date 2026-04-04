@@ -15,29 +15,29 @@ export default function ProgressTracker({ results }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-5"
-      style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+      className="rounded-xl p-5"
+      style={{ background: "#0e0e1a", border: "1px solid #1e1e36" }}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#8888aa" }}>
+        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#7070a0" }}>
           Progress
         </p>
         <div className="flex items-center gap-3">
           {improved && (
             <span
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+              className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
               style={{
-                background: "rgba(110,231,183,0.12)",
-                border: "1px solid rgba(110,231,183,0.3)",
-                color: "#6ee7b7",
+                background: "rgba(74,222,128,0.1)",
+                border: "1px solid rgba(74,222,128,0.28)",
+                color: "#4ade80",
               }}
             >
               ↑ Improving
             </span>
           )}
-          <span className="text-xs" style={{ color: "#8888aa" }}>
-            Best: <span style={{ color: "#a78bfa" }}>{best}%</span>
+          <span className="text-xs" style={{ color: "#7070a0" }}>
+            Best: <span style={{ color: "#8b5cf6" }}>{best}%</span>
           </span>
         </div>
       </div>
@@ -54,7 +54,7 @@ export default function ProgressTracker({ results }: Props) {
               {/* Score label */}
               <span
                 className="text-xs font-semibold tabular-nums"
-                style={{ color: isLatest ? "#a78bfa" : "#8888aa" }}
+                style={{ color: isLatest ? "#8b5cf6" : "#7070a0" }}
               >
                 {pct}%
               </span>
@@ -64,7 +64,7 @@ export default function ProgressTracker({ results }: Props) {
                 className="w-full rounded-lg overflow-hidden"
                 style={{
                   height: "72px",
-                  background: "#1e1e38",
+                  background: "#1e1e36",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "flex-end",
@@ -75,15 +75,15 @@ export default function ProgressTracker({ results }: Props) {
                   style={{
                     height: `${barH}%`,
                     background: isLatest
-                      ? "linear-gradient(180deg, #7c3aed 0%, #4f46e5 100%)"
-                      : "rgba(124,58,237,0.35)",
+                      ? "linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%)"
+                      : "rgba(139,92,246,0.3)",
                     borderRadius: "6px 6px 0 0",
                   }}
                 />
               </div>
 
               {/* Round label */}
-              <span className="text-xs" style={{ color: "#8888aa" }}>
+              <span className="text-xs" style={{ color: "#7070a0" }}>
                 R{r.round}
               </span>
             </div>
@@ -102,7 +102,7 @@ export default function ProgressTracker({ results }: Props) {
 
       {/* Trend line (text fallback) */}
       {results.length > 1 && (
-        <p className="text-xs mt-3 text-center" style={{ color: "#8888aa" }}>
+        <p className="text-xs mt-3 text-center" style={{ color: "#7070a0" }}>
           {results
             .map((r) => `${Math.round((r.score / r.totalQuestions) * 100)}%`)
             .join(" → ")}

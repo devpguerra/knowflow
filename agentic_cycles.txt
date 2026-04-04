@@ -1,0 +1,163 @@
+KNOWFLOW — AGENTIC CYCLES
+=========================
+
+
+CYCLE 1: MAIN AGENT  (/api/agent)
+----------------------------------
+
+PURPOSE
+  Ingests a knowledge source (PDF, pasted text, or a topic query) and autonomously
+  decides what study materials to produce: flashcards, a quiz, and/or a study guide.
+
+ENTRY POINTS
+  - Topic query  → JSON body { topic, difficulty }
+  - Pasted text  → JSON body { text, difficulty }
+  - PDF upload   → multipart/form-data { file, difficulty }
+
+PRE-PROCESSING PIPELINE (document/text paths only)
+  1. PDF extraction  — pdf-parse runs server-side; raw text is extracted from the buffer.
+  2. Hard truncation — text is capped at 150,000 characters to stay within model limits.
+  3. Summarization   — if text exceeds 20,000 characters, preprocessDocument() condenses
+                       it to ~15,000 characters using section extraction and sentence
+                       scoring, preserving headings as focus_area hints.
+  4. Content quality gate — validateContent() sends the text to Claude in a single
+                            non-tool call; Claude returns { valid, reason }. Gibberish,
+                            non-educational content, or unprocessable files are rejected
+                            here before the main loop starts.
+
+TOPIC PATH ADDITIONS
+  - validateTopicFast()      — regex-level sanity check (length, character class).
+  - validateTopicWithModel() — Claude decides whether the string is a valid study topic.
+  - If both pass, runTopicAgent() is called instead of the normal loop. The only
+    difference is the system prompt: the agent is told there is no source document and
+    it MUST call web_search first before calling analyze_content.
+
+SYSTEM PROMPT ROLE
+  Instructs Claude to:
+    1. Always call analyze_content first to map out key concepts.
+    2. Decide autonomously which generation tools to call based on the material:
+       - Terminology-heavy → prioritize flashcards
+       - Process/conceptual → prioritize study guide
+       - Always generate a quiz
+       - If source lacks context → use web_search before generating
+    3. Call multiple generation tools in a single response when ready
+       (backend executes them in parallel via Promise.all).
+
+AGENTIC LOOP  (up to 10 turns)
+  Each turn:
+    a. callClaudeWithTools() — sends conversation history + tool definitions to Claude.
+    b. Text blocks in the response are captured as "reasoning" AgentEvents and surfaced
+       in the Agent Reasoning panel on the frontend.
+    c. Tool-use blocks are collected and dispatched through executeToolCalls().
+    d. Tool results are classified:
+         Sequential (must finish before Claude reasons again):
+           analyze_content, web_search, assess_knowledge_gaps
+         Parallel-safe (independent outputs, run concurrently):
+           generate_flashcards, generate_quiz, generate_study_guide
+    e. Parallel-safe tools called in the same response are executed with Promise.all.
+    f. Results + tool output blocks are appended to the message history.
+    g. Loop ends when Claude produces no tool-use blocks or stop_reason != "tool_use".
+
+TOOLS AVAILABLE IN THIS CYCLE
+  analyze_content        — maps concepts, difficulty, structure, estimated study time
+  web_search             — fetches supplementary context (used in topic mode or when
+                           source material is incomplete)
+  generate_flashcards    — produces id/front/back/concept/difficulty flashcard objects
+  generate_quiz          — produces multiple_choice and true_false question objects
+  generate_study_guide   — produces titled sections with body text and key takeaways
+
+OUTPUT
+  { analysis, materials, agentEvents }
+  - analysis    — Analysis object (title, summary, concepts[], topicAreas[], estimatedStudyTime)
+  - materials   — GeneratedMaterials (studyGuide | null, flashcards | null, quiz | null)
+  - agentEvents — ordered list of reasoning and tool_call events for the UI panel
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+CYCLE 2: REVIEW AGENT  (/api/agent/review)
+-------------------------------------------
+
+PURPOSE
+  Triggered after the user completes a quiz. Receives the quiz results, diagnoses
+  knowledge gaps, and generates a targeted review pack calibrated to the score.
+
+TRIGGER
+  POST from /quiz page after ScoreCard mounts, called via handleReview().
+  Payload: { sourceText, quizResult, questions }
+
+PRE-PROCESSING
+  - Wrong answers are enriched server-side: numeric answer indices are resolved to
+    readable option text (e.g. "Option 2" → "Photosynthesis uses sunlight") before
+    being passed to the agent, so Claude reasons about content rather than indices.
+  - sourceText is truncated to a 500-character excerpt to give the agent context
+    about the original material without repeating the full document.
+
+SYSTEM PROMPT ROLE
+  Instructs Claude to:
+    1. Always call assess_knowledge_gaps first to diagnose severity.
+    2. Choose a review strategy based on score:
+         > 80% (light)     — focused flashcards only for missed concepts
+         50–80% (moderate) — flashcards + simplified study section + retake quiz
+         < 50% (deep)      — simplified study guide covering fundamentals + easier quiz
+    3. Encourage the user; frame gaps as areas to grow, not failures.
+
+AGENTIC LOOP  (up to 10 turns, same mechanics as Cycle 1)
+  Each turn:
+    a. callClaudeWithTools() — sends the enriched quiz context + tool definitions.
+    b. Text blocks → "reasoning" AgentEvents.
+    c. Tool-use blocks → executeToolCalls() with the same parallel/sequential split.
+    d. Results accumulated in toolResultsByName.
+    e. Loop terminates when Claude stops calling tools.
+
+TOOLS AVAILABLE IN THIS CYCLE
+  assess_knowledge_gaps  — analyzes wrong answers, returns weakConcepts[], severity
+                           ratings (low/medium/high), a strategy string, and
+                           recommendedActions[]
+  generate_flashcards    — targeted to weak concepts only
+  generate_quiz          — easier retake quiz focused on missed areas
+  generate_study_guide   — simplified/foundational guide (depth: "overview")
+
+  Note: analyze_content and web_search are in the tool schema but the review agent
+  system prompt does not instruct their use; Claude may call them autonomously if it
+  judges the context insufficient.
+
+FALLBACK ASSEMBLY
+  If assess_knowledge_gaps was never called (e.g. perfect score path), the backend
+  constructs a minimal KnowledgeGapAssessment from missedConcepts[] with "medium"
+  severity so the ReviewPack is always well-formed.
+
+OUTPUT
+  { reviewPack, agentEvents }
+  - reviewPack  — ReviewPack object:
+      assessment        — KnowledgeGapAssessment (weakConcepts[], strategy, recommendedActions[])
+      focusedFlashcards — Flashcard[] | null
+      retakeQuiz        — { questions: QuizQuestion[] } | null
+      simplifiedGuide   — { sections: StudyGuideSection[] } | null
+  - agentEvents — reasoning + tool_call events for the Agent Reasoning panel
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+SHARED INFRASTRUCTURE
+----------------------
+
+  lib/claude.ts         callClaudeWithTools()  — wraps the Anthropic SDK; sends
+                                                 messages + tool definitions, returns
+                                                 the raw API response.
+
+  lib/toolExecutor.ts   executeToolCalls()     — receives an array of tool_use blocks,
+                                                 separates parallel-safe tools, runs
+                                                 them with Promise.all, wraps results
+                                                 as tool_result content blocks.
+
+  lib/tools.ts          agentTools             — full tool schema (JSON Schema input
+                                                 definitions for all 6 tools).
+                        PARALLEL_SAFE          — ["generate_flashcards", "generate_quiz",
+                                                 "generate_study_guide"]
+
+  Model                 claude-sonnet-4-20250514  (set in lib/claude.ts)
+  Max turns per cycle   10
+  Max duration (Vercel) 60 seconds
