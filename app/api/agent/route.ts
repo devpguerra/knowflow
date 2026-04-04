@@ -3,6 +3,7 @@ import { callClaudeWithTools, type ClaudeMessage, type ContentBlock } from "@/li
 import { executeToolCalls, toToolResultBlocks } from "@/lib/toolExecutor";
 import { agentTools, PARALLEL_SAFE, type ToolUseBlock } from "@/lib/tools";
 import { extractTextFromPDF } from "@/lib/pdf";
+import { preprocessDocument } from "@/lib/preprocess";
 import type {
   Analysis,
   Flashcard,
@@ -14,13 +15,14 @@ import type {
 
 export const maxDuration = 60;
 
-const MAX_CHARS = 60_000;
+const MAX_CHARS = 150_000; // absolute hard limit before preprocessing
+const SUMMARIZE_THRESHOLD = 20_000; // programmatic condensing kicks in above this
 const MAX_TURNS = 10;
 
 const SYSTEM_PROMPT = `You are Knowledge Transformer, an intelligent study agent. You have tools available to analyze content and generate study materials.
 
 Your job is to:
-1. First, ALWAYS call analyze_content to understand the source material
+1. First, ALWAYS call analyze_content to understand the source material. If the text begins with "[Document sections: ...]", those are the document's own section headings — use them as focus_areas when calling generate_study_guide.
 2. Based on your analysis, DECIDE which materials to generate and why:
    - Heavy on terminology? Prioritize flashcards
    - Process-heavy or conceptual? Prioritize study guide
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest) {
       if (file) {
         const buffer = Buffer.from(await file.arrayBuffer());
         text = await extractTextFromPDF(buffer);
+        console.log(`[PDF] Extracted ${text.length} characters from ${file.name}`);
       } else if (pastedText) {
         text = pastedText;
       } else {
@@ -61,7 +64,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (text.length > MAX_CHARS) text = text.slice(0, MAX_CHARS);
+    if (text.length > MAX_CHARS) {
+      console.warn(`[agent] Document truncated from ${text.length} to ${MAX_CHARS} chars (hard limit)`);
+      text = text.slice(0, MAX_CHARS);
+    }
+
+    if (text.length > SUMMARIZE_THRESHOLD) {
+      const { condensedText } = preprocessDocument(text, 15_000);
+      console.log(`[preprocess] Reduced ${text.length} → ${condensedText.length} chars`);
+      text = condensedText;
+    }
 
     // ── Agent loop ──────────────────────────────────────────────────────────
 
