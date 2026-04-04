@@ -3,7 +3,7 @@ import { callClaudeWithTools, type ClaudeMessage, type ContentBlock } from "@/li
 import { executeToolCalls, toToolResultBlocks } from "@/lib/toolExecutor";
 import { agentTools, PARALLEL_SAFE, type ToolUseBlock } from "@/lib/tools";
 import { extractTextFromPDF } from "@/lib/pdf";
-import { preprocessDocument } from "@/lib/preprocess";
+import { preprocessDocument, validateContent } from "@/lib/preprocess";
 import type {
   Analysis,
   Flashcard,
@@ -73,6 +73,12 @@ export async function POST(req: NextRequest) {
       const { condensedText } = preprocessDocument(text, 15_000);
       console.log(`[preprocess] Reduced ${text.length} → ${condensedText.length} chars`);
       text = condensedText;
+    }
+
+    // ── Content quality gate ────────────────────────────────────────────────
+    const validation = await validateContent(text);
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.reason }, { status: 400 });
     }
 
     // ── Agent loop ──────────────────────────────────────────────────────────

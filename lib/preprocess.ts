@@ -130,3 +130,44 @@ export function preprocessDocument(
 
   return { condensedText: structureNote + condensedBody, headings };
 }
+
+/**
+ * Quick Claude-based content quality check.
+ * Sends only the first 3 000 chars to keep it fast and cheap.
+ * Returns { valid: true } for learnable content, { valid: false, reason } for garbage.
+ */
+export async function validateContent(
+  text: string
+): Promise<{ valid: boolean; reason: string }> {
+  const { callClaude } = await import("./claude");
+  const sample = text.slice(0, 3000);
+  const prompt = `You are a content quality checker for a study material generator.
+
+Examine the following text sample and determine if it contains meaningful educational or informational content that a student could learn from.
+
+Reject content that is:
+- Configuration files, environment variables, or settings files
+- Log output, stack traces, or debugging output
+- Mostly repetitive or duplicate text (copy-pasted lines, boilerplate)
+- Binary or machine-generated gibberish (random characters, encoded data)
+- Extremely sparse or near-empty (fewer than ~50 meaningful words)
+- Pure code with no explanatory comments or documentation value
+- Data exports (CSV rows, JSON arrays of records, database dumps)
+
+Accept content that is:
+- Educational text: articles, textbook chapters, notes, documentation
+- Explanatory prose about any topic
+- Technical content with explanations (tutorials, guides, papers)
+- Even short but meaningful text that explains a concept
+
+Text sample:
+"""
+${sample}
+"""
+
+Respond ONLY with valid JSON, no markdown fences:
+{"valid": true or false, "reason": "one sentence explaining why (shown to user if invalid)"}`;
+
+  const result = await callClaude(prompt);
+  return result as { valid: boolean; reason: string };
+}
