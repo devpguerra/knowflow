@@ -383,8 +383,30 @@ async function callClaudeOnce(prompt: string): Promise<unknown> {
   try {
     return JSON.parse(text);
   } catch {
+    // Response may be truncated (max_tokens). Try to salvage completed sections.
+    if (data.stop_reason === "max_tokens") {
+      const salvaged = salvagePartialJSON(text);
+      if (salvaged !== null) return salvaged;
+    }
     throw new Error(`Claude returned invalid JSON:\n${text.slice(0, 300)}`);
   }
+}
+
+/** Try to extract a valid JSON value from a truncated string by progressively trimming. */
+function salvagePartialJSON(text: string): unknown {
+  // 1. Maybe only the closing bracket is missing
+  try { return JSON.parse(text + "]"); } catch {}
+  // 2. Truncate after the last complete object (ends with },)
+  const lastCommaClose = text.lastIndexOf("},");
+  if (lastCommaClose !== -1) {
+    try { return JSON.parse(text.slice(0, lastCommaClose + 1) + "]"); } catch {}
+  }
+  // 3. Truncate after the last closing brace
+  const lastBrace = text.lastIndexOf("}");
+  if (lastBrace !== -1) {
+    try { return JSON.parse(text.slice(0, lastBrace + 1) + "]"); } catch {}
+  }
+  return null;
 }
 
 async function callClaudeReal(prompt: string): Promise<unknown> {

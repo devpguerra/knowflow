@@ -148,10 +148,10 @@ ${JSON_ONLY}`;
         : "";
       const depthNote =
         depth === "overview"
-          ? "Keep each section to 1 short paragraph (max 150 words). No fluff."
+          ? "Keep each section to 1 short paragraph (max 80 words). No fluff."
           : depth === "detailed"
-          ? "Each section: 2 concise paragraphs with one example (max 250 words total)."
-          : "Each section: 3 focused paragraphs with one analogy and one example (max 350 words total).";
+          ? "Each section: 1-2 concise paragraphs with one short code example if relevant (max 150 words total)."
+          : "Each section: 2 focused paragraphs with one short code example if relevant (max 220 words total).";
       return `Generate a ${depth} study guide for the following concepts:
 
 ${conceptList(concepts)}
@@ -167,8 +167,14 @@ Return a JSON array where each element is a section:
   "sources": [{ "title": "string — short display name", "url": "string — full https URL" }]
 }
 
+Code formatting rules (IMPORTANT — this guide may cover programming topics):
+- If you include ANY code example, put it in a fenced code block on its own lines: start the block with \`\`\`lang (e.g. \`\`\`python), write each line of code on its own line, then close with \`\`\`.
+- NEVER inline code with backticks inside a prose sentence (e.g. do NOT write "use \`x = 5\` to assign"). Instead, place the code in a fenced block after the sentence that refers to it.
+- NEVER embed \\n inside a backtick span to represent multi-line code — always use a proper fenced block.
+- For REPL examples use the >>> prefix on each line inside the fenced block.
+
 For sources: include 1–3 authoritative reference links per section (Wikipedia articles, official docs, reputable educational sites). Only include URLs you are confident exist.
-Limit keyTakeaways to 3 bullets per section. Keep the total JSON response under 3000 tokens.
+Limit keyTakeaways to 2 bullets per section. Keep the total JSON response under 2000 tokens.
 
 ${JSON_ONLY}`;
     }
