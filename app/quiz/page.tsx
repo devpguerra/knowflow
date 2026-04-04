@@ -72,22 +72,22 @@ export default function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen page-enter" style={{ background: "#07070f" }}>
+    <div className="min-h-screen page-enter" style={{ background: "#080604" }}>
       {/* Header */}
       <header
         className="sticky top-0 z-20 flex items-center gap-3 px-4 sm:px-6 py-3"
         style={{
-          background: "rgba(7,7,15,0.85)",
-          borderBottom: "1px solid #1e1e38",
+          background: "rgba(8,6,4,0.88)",
+          borderBottom: "1px solid #2a2015",
           backdropFilter: "blur(12px)",
         }}
       >
         <button
           onClick={() => router.push("/materials")}
           className="flex items-center gap-1.5 text-sm transition-colors duration-150"
-          style={{ color: "#8888aa" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8e8f0")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#8888aa")}
+          style={{ color: "#8a7560" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#f0e8d8")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#8a7560")}
         >
           <ArrowLeft />
           {result ? "Back to materials" : "Materials"}
@@ -95,7 +95,7 @@ export default function QuizPage() {
 
         <div className="flex-1" />
 
-        <span className="hidden sm:inline text-sm font-medium truncate max-w-xs" style={{ color: "#a78bfa" }}>
+        <span className="hidden sm:inline text-sm font-medium truncate max-w-xs" style={{ color: "#d97706" }}>
           {analysis.title.length > 40 ? analysis.title.slice(0, 40) + "…" : analysis.title}
         </span>
       </header>
@@ -107,19 +107,19 @@ export default function QuizPage() {
             {/* Quiz header */}
             <div className="max-w-2xl mx-auto mb-8 text-center">
               <div
-                className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-medium tracking-widest uppercase"
+                className="inline-flex items-center gap-2 mb-3 px-3 py-1 text-xs font-medium tracking-widest uppercase"
                 style={{
-                  background: "rgba(124,58,237,0.15)",
-                  border: "1px solid rgba(124,58,237,0.3)",
-                  color: "#a78bfa",
+                  background: "rgba(217,119,6,0.1)",
+                  border: "1px solid rgba(217,119,6,0.3)",
+                  color: "#d97706",
                 }}
               >
                 Round {round}
               </div>
-              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f0" }}>
+              <h1 className="font-heading text-2xl font-bold" style={{ color: "#f0e8d8" }}>
                 Knowledge Check
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
+              <p className="text-sm mt-1" style={{ color: "#8a7560" }}>
                 {questions.length} questions · select an answer to advance
               </p>
             </div>
@@ -132,17 +132,17 @@ export default function QuizPage() {
           </>
         ) : reviewLoading ? (
           /* Review agent loading */
-          <div className="max-w-sm mx-auto rounded-2xl overflow-hidden" style={{ border: "1px solid #1e1e38", background: "#0a0a18" }}>
+          <div className="max-w-sm mx-auto rounded-xl overflow-hidden" style={{ border: "1px solid #2a2015", background: "#0a0704" }}>
             <LoadingAgent phase="reviewing" />
           </div>
         ) : (
           <>
             {/* Score header */}
             <div className="max-w-2xl mx-auto mb-8 text-center">
-              <h1 className="font-heading text-2xl font-bold" style={{ color: "#e8e8f0" }}>
+              <h1 className="font-heading text-2xl font-bold" style={{ color: "#f0e8d8" }}>
                 Quiz Complete
               </h1>
-              <p className="text-sm mt-1" style={{ color: "#8888aa" }}>
+              <p className="text-sm mt-1" style={{ color: "#8a7560" }}>
                 Round {result.round} · here&apos;s how you did
               </p>
             </div>

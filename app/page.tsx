@@ -143,53 +143,83 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-16">
-      {/* Background orb */}
+      {/* Warm amber ambient glow */}
       <div
         aria-hidden
-        className="pointer-events-none fixed top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full opacity-20 blur-3xl"
-        style={{ background: "radial-gradient(ellipse, #7c3aed 0%, transparent 70%)" }}
+        className="pointer-events-none fixed top-[-15%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full opacity-[0.12] blur-3xl"
+        style={{ background: "radial-gradient(ellipse, #d97706 0%, transparent 65%)" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed bottom-[-10%] right-[10%] w-[500px] h-[350px] rounded-full opacity-[0.06] blur-3xl"
+        style={{ background: "radial-gradient(ellipse, #b45309 0%, transparent 70%)" }}
       />
 
-      <div className="relative w-full max-w-2xl page-enter">
-        {/* Header */}
+      <div className="relative w-full max-w-xl page-enter">
+        {/* ── Hero ──────────────────────────────────────────────────────── */}
         <div className="text-center mb-10">
+          {/* Ornamental badge */}
           <div
-            className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full text-xs font-medium tracking-widest uppercase"
-            style={{ background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", color: "#a78bfa" }}
+            className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 text-xs font-medium tracking-[0.18em] uppercase"
+            style={{
+              border: "1px solid rgba(217,119,6,0.35)",
+              color: "#d97706",
+              background: "rgba(217,119,6,0.06)",
+            }}
           >
-            AI-Powered Learning
+            <DiamondIcon size={7} />
+            <span>AI Knowledge Transformer</span>
+            <DiamondIcon size={7} />
           </div>
-          <h1 className="font-heading text-4xl sm:text-5xl font-bold tracking-tight mb-3 gradient-text">
-            Know - Flow
+
+          {/* Title */}
+          <h1 className="font-heading text-5xl sm:text-6xl font-bold tracking-tight mb-4 gradient-text" style={{ fontStyle: "italic" }}>
+            Know—Flow
           </h1>
-          <p className="text-text-muted text-base sm:text-lg">
+
+          {/* Thin ornamental rule */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div style={{ width: 48, height: 1, background: "linear-gradient(to right, transparent, rgba(217,119,6,0.4))" }} />
+            <DiamondIcon size={6} color="#d97706" />
+            <div style={{ width: 48, height: 1, background: "linear-gradient(to left, transparent, rgba(217,119,6,0.4))" }} />
+          </div>
+
+          <p className="text-text-muted text-base sm:text-lg leading-relaxed">
             Drop in any document and get a complete study system — instantly.
           </p>
         </div>
 
-        {/* Card */}
-        <div className="rounded-2xl p-5 sm:p-8 surface" style={{ boxShadow: "0 0 0 1px #1e1e38, 0 24px 64px rgba(0,0,0,0.6)" }}>
-
-          {/* Tab toggle */}
-          <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: "#0a0a18" }}>
+        {/* ── Card ──────────────────────────────────────────────────────── */}
+        <div
+          className="rounded-xl p-5 sm:p-8"
+          style={{
+            background: "#110e09",
+            border: "1px solid #2a2015",
+            boxShadow: "0 0 0 1px rgba(217,119,6,0.06), 0 24px 64px rgba(0,0,0,0.7)",
+          }}
+        >
+          {/* ── Tab nav: editorial underline style ── */}
+          <div className="flex gap-1 mb-6" style={{ borderBottom: "1px solid #2a2015" }}>
             {(["topic", "text", "pdf"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => { setTab(t); setError(null); }}
                 disabled={loading}
-                className="flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all duration-200 disabled:opacity-50"
-                style={
-                  tab === t
-                    ? { background: "#16162a", color: "#e8e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.4)" }
-                    : { color: "#8888aa" }
-                }
+                className="relative px-4 pb-3 pt-1 text-sm font-medium transition-colors duration-150 disabled:opacity-40"
+                style={{ color: tab === t ? "#f0e8d8" : "#8a7560" }}
               >
                 {t === "topic" ? "Topic" : t === "text" ? "Paste Text" : "Upload PDF"}
+                {tab === t && (
+                  <span
+                    className="absolute bottom-[-1px] left-0 right-0"
+                    style={{ height: 2, background: "#d97706", borderRadius: "2px 2px 0 0" }}
+                  />
+                )}
               </button>
             ))}
           </div>
 
-          {/* Input area */}
+          {/* ── Input area ── */}
           {tab === "topic" ? (
             <input
               type="text"
@@ -197,15 +227,15 @@ export default function HomePage() {
               onChange={(e) => { setTopicInput(e.target.value); setError(null); }}
               disabled={loading}
               placeholder="e.g., Photosynthesis, Machine Learning, The French Revolution"
-              className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all duration-200 disabled:opacity-50 placeholder:text-text-muted"
+              className="w-full rounded-lg px-4 py-3 text-sm outline-none transition-all duration-200 disabled:opacity-50 placeholder:text-text-muted"
               style={{
-                background: "#0a0a18",
-                border: "1px solid #1e1e38",
-                color: "#e8e8f0",
+                background: "#0a0704",
+                border: "1px solid #2a2015",
+                color: "#f0e8d8",
                 fontFamily: "var(--font-body)",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e38")}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#d97706")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2015")}
             />
           ) : tab === "text" ? (
             <textarea
@@ -214,15 +244,15 @@ export default function HomePage() {
               disabled={loading}
               placeholder="Paste your notes, articles, textbook chapters, or any text here…"
               rows={9}
-              className="w-full rounded-xl px-4 py-3 text-sm leading-relaxed resize-none outline-none transition-all duration-200 disabled:opacity-50 placeholder:text-text-muted"
+              className="w-full rounded-lg px-4 py-3 text-sm leading-relaxed resize-none outline-none transition-all duration-200 disabled:opacity-50 placeholder:text-text-muted"
               style={{
-                background: "#0a0a18",
-                border: "1px solid #1e1e38",
-                color: "#e8e8f0",
+                background: "#0a0704",
+                border: "1px solid #2a2015",
+                color: "#f0e8d8",
                 fontFamily: "var(--font-body)",
               }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "#7c3aed")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "#1e1e38")}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#d97706")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#2a2015")}
             />
           ) : (
             <div
@@ -230,32 +260,32 @@ export default function HomePage() {
               onDragLeave={onDragLeave}
               onDrop={onDrop}
               onClick={() => !loading && fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center gap-3 rounded-xl cursor-pointer transition-all duration-200 select-none"
+              className="flex flex-col items-center justify-center gap-3 rounded-lg cursor-pointer transition-all duration-200 select-none"
               style={{
                 height: "200px",
-                border: `2px dashed ${isDragging ? "#7c3aed" : "#1e1e38"}`,
-                background: isDragging ? "rgba(124,58,237,0.08)" : "#0a0a18",
+                border: `2px dashed ${isDragging ? "#d97706" : "#2a2015"}`,
+                background: isDragging ? "rgba(217,119,6,0.06)" : "#0a0704",
               }}
             >
               {pdfFile ? (
                 <>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(124,58,237,0.2)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(217,119,6,0.15)" }}>
                     <PdfIcon />
                   </div>
-                  <p className="text-sm font-medium" style={{ color: "#e8e8f0" }}>{pdfFile.name}</p>
-                  <p className="text-xs" style={{ color: "#8888aa" }}>
+                  <p className="text-sm font-medium" style={{ color: "#f0e8d8" }}>{pdfFile.name}</p>
+                  <p className="text-xs" style={{ color: "#8a7560" }}>
                     {(pdfFile.size / 1024).toFixed(0)} KB · Click to replace
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(124,58,237,0.15)" }}>
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(217,119,6,0.1)" }}>
                     <UploadIcon />
                   </div>
-                  <p className="text-sm font-medium" style={{ color: "#e8e8f0" }}>
+                  <p className="text-sm font-medium" style={{ color: "#f0e8d8" }}>
                     Drag & drop your PDF here
                   </p>
-                  <p className="text-xs" style={{ color: "#8888aa" }}>or click to browse</p>
+                  <p className="text-xs" style={{ color: "#8a7560" }}>or click to browse</p>
                 </>
               )}
               <input
@@ -268,30 +298,25 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Difficulty selector */}
+          {/* ── Difficulty selector ── */}
           <div className="mt-5">
-            <p className="text-xs font-medium uppercase tracking-widest mb-2" style={{ color: "#8888aa" }}>
+            <p className="text-xs font-medium uppercase tracking-widest mb-2.5" style={{ color: "#8a7560" }}>
               Difficulty
             </p>
-            <div className="flex gap-2">
+            <div
+              className="flex p-0.5 rounded-lg"
+              style={{ background: "#0a0704", border: "1px solid #2a2015" }}
+            >
               {DIFFICULTIES.map(({ value, label }) => (
                 <button
                   key={value}
                   onClick={() => setDifficulty(value)}
                   disabled={loading}
-                  className="flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 disabled:opacity-50"
+                  className="flex-1 py-2 rounded-md text-xs sm:text-sm font-medium transition-all duration-150 disabled:opacity-50"
                   style={
                     difficulty === value
-                      ? {
-                          background: "rgba(124,58,237,0.25)",
-                          border: "1px solid rgba(124,58,237,0.6)",
-                          color: "#c4b5fd",
-                        }
-                      : {
-                          background: "#0a0a18",
-                          border: "1px solid #1e1e38",
-                          color: "#8888aa",
-                        }
+                      ? { background: "#d97706", color: "#fff" }
+                      : { color: "#8a7560" }
                   }
                 >
                   {label}
@@ -300,52 +325,54 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Error */}
+          {/* ── Error ── */}
           {error && (
             <div
               className="mt-4 flex items-start gap-3 px-4 py-3 rounded-lg text-sm"
-              style={{ background: "rgba(220,38,38,0.12)", border: "1px solid rgba(220,38,38,0.3)", color: "#fca5a5" }}
+              style={{ background: "rgba(184,82,82,0.12)", border: "1px solid rgba(184,82,82,0.3)", color: "#e08080" }}
             >
               <span className="flex-1">{error}</span>
               <button
                 onClick={handleTransform}
                 className="flex-shrink-0 text-xs font-medium underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity"
-                style={{ color: "#fca5a5" }}
+                style={{ color: "#e08080" }}
               >
                 Retry
               </button>
             </div>
           )}
 
-          {/* Transform button */}
+          {/* ── Transform button ── */}
           <button
             onClick={handleTransform}
             disabled={loading}
             className="mt-5 w-full py-3.5 rounded-xl font-heading font-semibold text-base tracking-wide transition-all duration-200 flex items-center justify-center gap-2"
             style={
               loading
-                ? { background: "rgba(124,58,237,0.4)", color: "rgba(255,255,255,0.5)", cursor: "not-allowed" }
+                ? { background: "rgba(217,119,6,0.35)", color: "rgba(255,255,255,0.5)", cursor: "not-allowed" }
                 : {
-                    background: "linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)",
+                    background: "#d97706",
                     color: "#fff",
-                    boxShadow: "0 0 24px rgba(124,58,237,0.45)",
+                    boxShadow: "0 0 28px rgba(217,119,6,0.4)",
                   }
             }
+            onMouseEnter={(e) => { if (!loading) { e.currentTarget.style.background = "#b45309"; e.currentTarget.style.boxShadow = "0 0 36px rgba(217,119,6,0.5)"; } }}
+            onMouseLeave={(e) => { if (!loading) { e.currentTarget.style.background = "#d97706"; e.currentTarget.style.boxShadow = "0 0 28px rgba(217,119,6,0.4)"; } }}
           >
             {loading ? <><Spinner /> Working…</> : <><SparkleIcon /> Transform</>}
           </button>
 
-          {/* Agent loading display */}
+          {/* ── Agent loading display ── */}
           {loading && (
-            <div className="mt-4 rounded-xl overflow-hidden" style={{ border: "1px solid #1e1e38", background: "#0a0a18" }}>
+            <div className="mt-4 rounded-xl overflow-hidden" style={{ border: "1px solid #2a2015", background: "#0a0704" }}>
               <LoadingAgent phase={currentPhase} />
             </div>
           )}
         </div>
 
-        {/* Footer hint */}
+        {/* ── Footer hint ── */}
         {!loading && (
-          <p className="text-center text-xs mt-5" style={{ color: "#8888aa" }}>
+          <p className="text-center text-xs mt-5" style={{ color: "#8a7560" }}>
             {tab === "topic"
               ? "Topic mode uses web search to build study materials from scratch"
               : tab === "text"
@@ -360,6 +387,21 @@ export default function HomePage() {
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 
+function DiamondIcon({ size = 8, color = "#d97706" }: { size?: number; color?: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        width: size,
+        height: size,
+        background: color,
+        transform: "rotate(45deg)",
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
 function SparkleIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -370,7 +412,7 @@ function SparkleIcon() {
 
 function UploadIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
       <polyline points="17 8 12 3 7 8" />
       <line x1="12" y1="3" x2="12" y2="15" />
@@ -380,7 +422,7 @@ function UploadIcon() {
 
 function PdfIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
       <polyline points="14 2 14 8 20 8" />
       <line x1="9" y1="13" x2="15" y2="13" />

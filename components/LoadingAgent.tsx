@@ -45,14 +45,14 @@ const PHASE_LABELS: Record<LoadingPhase, string> = {
 
 // Parallel generation items — each gets an independent progress bar
 const GEN_ITEMS = [
-  { label: "flashcards", accent: "#a78bfa", dur: 3.1 },
-  { label: "quiz questions", accent: "#6ee7b7", dur: 4.4 },
-  { label: "study guide", accent: "#60a5fa", dur: 3.8 },
+  { label: "flashcards", accent: "#d97706", dur: 3.1 },
+  { label: "quiz questions", accent: "#6abf6a", dur: 4.4 },
+  { label: "study guide", accent: "#c0a050", dur: 3.8 },
 ] as const;
 
 // ── Thinking indicator — equalizer bars ───────────────────────────────────────
 
-function Equalizer({ accent = "#a78bfa" }: { accent?: string }) {
+function Equalizer({ accent = "#d97706" }: { accent?: string }) {
   const bars = [0.6, 1, 0.75, 1, 0.5];
   return (
     <div className="flex items-end gap-[3px]" style={{ height: 20 }}>
@@ -87,7 +87,7 @@ function RadarPulse() {
           style={{
             width: 16 + i * 16,
             height: 16 + i * 16,
-            border: "1.5px solid #a78bfa",
+            border: "1.5px solid #d97706",
             opacity: 0,
             animation: `la-radar 2s ease-out ${i * 0.55}s infinite`,
           }}
@@ -95,7 +95,7 @@ function RadarPulse() {
       ))}
       <div
         className="rounded-full z-10"
-        style={{ width: 10, height: 10, background: "#a78bfa", boxShadow: "0 0 10px #a78bfa" }}
+        style={{ width: 10, height: 10, background: "#d97706", boxShadow: "0 0 10px #d97706" }}
       />
     </div>
   );
@@ -104,7 +104,7 @@ function RadarPulse() {
 // ── Neural node (analyzing / reviewing) ──────────────────────────────────────
 
 function NeuralPulse({ phase }: { phase: LoadingPhase }) {
-  const accent = phase === "reviewing" ? "#f59e0b" : "#a78bfa";
+  const accent = phase === "reviewing" ? "#f59e0b" : "#d97706";
   const nodes = [
     { x: 28, y: 4 },
     { x: 52, y: 18 },
@@ -190,7 +190,7 @@ function ParallelBars() {
           <div className="flex items-center justify-between mb-1.5">
             <span
               className="text-xs font-medium"
-              style={{ color: "#c4c4d4", fontFamily: "ui-monospace, monospace" }}
+              style={{ color: "#c4a87a", fontFamily: "ui-monospace, monospace" }}
             >
               {item.label}
             </span>
@@ -203,7 +203,7 @@ function ParallelBars() {
           </div>
           <div
             className="w-full rounded-full overflow-hidden"
-            style={{ height: 4, background: "#1e1e38" }}
+            style={{ height: 4, background: "#2a2015" }}
           >
             <div
               className="h-full rounded-full transition-all"
@@ -217,7 +217,7 @@ function ParallelBars() {
           </div>
         </div>
       ))}
-      <p className="text-[10px] text-center mt-1" style={{ color: "#8888aa", fontFamily: "ui-monospace, monospace" }}>
+      <p className="text-[10px] text-center mt-1" style={{ color: "#8a7560", fontFamily: "ui-monospace, monospace" }}>
         ⚡ running in parallel
       </p>
     </div>
@@ -248,9 +248,9 @@ export default function LoadingAgent({ phase }: Props) {
     return () => clearInterval(fade);
   }, [messages]);
 
-  const accent = phase === "reviewing" ? "#f59e0b" : "#a78bfa";
-  const accentDim = phase === "reviewing" ? "rgba(245,158,11,0.12)" : "rgba(167,139,250,0.12)";
-  const accentBorder = phase === "reviewing" ? "rgba(245,158,11,0.25)" : "rgba(167,139,250,0.25)";
+  const accent = phase === "reviewing" ? "#f59e0b" : "#d97706";
+  const accentDim = phase === "reviewing" ? "rgba(245,158,11,0.1)" : "rgba(217,119,6,0.1)";
+  const accentBorder = phase === "reviewing" ? "rgba(245,158,11,0.25)" : "rgba(217,119,6,0.25)";
 
   return (
     <>
@@ -281,7 +281,7 @@ export default function LoadingAgent({ phase }: Props) {
 
         {/* Phase badge */}
         <div
-          className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest"
+          className="flex items-center gap-2 px-3 py-1 text-xs font-semibold uppercase tracking-widest"
           style={{ background: accentDim, border: `1px solid ${accentBorder}`, color: accent }}
         >
           <Equalizer accent={accent} />
@@ -308,7 +308,7 @@ export default function LoadingAgent({ phase }: Props) {
         <p
           className="text-sm text-center max-w-xs leading-relaxed"
           style={{
-            color: "#b8b8cc",
+            color: "#c4a87a",
             minHeight: 20,
             opacity: visible ? 1 : 0,
             transform: visible ? "translateY(0)" : "translateY(4px)",

@@ -32,7 +32,7 @@ function ThinkingDots() {
             width: 4,
             height: 4,
             borderRadius: "50%",
-            background: "#a78bfa",
+            background: "#d97706",
             animation: `ar-bounce 1.2s ease-in-out ${i * 0.2}s infinite`,
           }}
         />
@@ -87,12 +87,12 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         style={{
           top: 156,
           right: open ? 352 : 0,
-          background: open ? "#1a1a2e" : "#0d0d1a",
-          border: "1px solid #1e1e38",
-          borderRight: open ? "1px solid #1e1e38" : "none",
+          background: open ? "#1a150e" : "#110e09",
+          border: "1px solid #2a2015",
+          borderRight: open ? "1px solid #2a2015" : "none",
           borderRadius: "10px 0 0 10px",
           padding: "10px 14px 10px 12px",
-          color: "#e8e8f0",
+          color: "#f0e8d8",
           boxShadow: open ? "none" : "-4px 4px 20px rgba(0,0,0,0.4)",
           transition: "right 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s",
         }}
@@ -101,7 +101,7 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <span
           style={{
             fontSize: 14,
-            color: isLoading ? "#a78bfa" : open ? "#8888aa" : "#a78bfa",
+            color: isLoading ? "#d97706" : open ? "#8a7560" : "#d97706",
             transition: "color 0.2s",
           }}
         >
@@ -112,7 +112,7 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <span className="flex flex-col items-start gap-0.5 hidden sm:flex">
           <span
             className="text-[11px] font-semibold tracking-wide leading-none"
-            style={{ color: open ? "#8888aa" : "#e8e8f0" }}
+            style={{ color: open ? "#8a7560" : "#f0e8d8" }}
           >
             {open ? "Close panel" : "Agent Reasoning"}
           </span>
@@ -120,7 +120,7 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
             <span
               className="text-[9px] leading-none tabular-nums"
               style={{
-                color: "#8888aa",
+                color: "#8a7560",
                 fontFamily: "ui-monospace, monospace",
               }}
             >
@@ -142,7 +142,7 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <span
           style={{
             fontSize: 10,
-            color: "#8888aa",
+            color: "#8a7560",
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
             transition: "transform 0.25s",
@@ -161,9 +161,9 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
           right: 0,
           width: 352,
           height: "100vh",
-          background: "#0d0d1a",
-          borderLeft: "1px solid #1e1e38",
-          boxShadow: open ? "-12px 0 40px rgba(0,0,0,0.5)" : "none",
+          background: "#0c0905",
+          borderLeft: "1px solid #2a2015",
+          boxShadow: open ? "-12px 0 40px rgba(0,0,0,0.6)" : "none",
           transform: open ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s",
           pointerEvents: open ? "auto" : "none",
@@ -174,25 +174,25 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <div
           className="flex items-center justify-between px-4 py-3 flex-shrink-0"
           style={{
-            borderBottom: "1px solid #1e1e38",
-            background: "#0d0d1a",
+            borderBottom: "1px solid #2a2015",
+            background: "#0c0905",
           }}
         >
           <div className="flex items-center gap-2">
-            <span style={{ color: "#a78bfa", fontSize: 14 }}>⬡</span>
+            <span style={{ color: "#d97706", fontSize: 14 }}>⬡</span>
             <span
               className="text-xs font-semibold uppercase tracking-widest"
-              style={{ color: "#a78bfa", fontFamily: "ui-monospace, monospace" }}
+              style={{ color: "#d97706", fontFamily: "ui-monospace, monospace" }}
             >
               Agent Reasoning
             </span>
             {isLoading && (
               <span
-                className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px]"
+                className="flex items-center gap-1.5 px-2 py-0.5 text-[10px]"
                 style={{
-                  background: "rgba(167,139,250,0.1)",
-                  border: "1px solid rgba(167,139,250,0.25)",
-                  color: "#a78bfa",
+                  background: "rgba(217,119,6,0.08)",
+                  border: "1px solid rgba(217,119,6,0.2)",
+                  color: "#d97706",
                   fontFamily: "ui-monospace, monospace",
                 }}
               >
@@ -204,14 +204,14 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
           <button
             onClick={() => setOpen(false)}
             className="w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
-            style={{ color: "#8888aa" }}
+            style={{ color: "#8a7560" }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-              e.currentTarget.style.color = "#e8e8f0";
+              e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+              e.currentTarget.style.color = "#f0e8d8";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.color = "#8888aa";
+              e.currentTarget.style.color = "#8a7560";
             }}
             aria-label="Close"
           >
@@ -223,17 +223,17 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <div
           ref={bodyRef}
           className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
-          style={{ scrollbarWidth: "thin", scrollbarColor: "#1e1e38 transparent" }}
+          style={{ scrollbarWidth: "thin", scrollbarColor: "#2a2015 transparent" }}
         >
           {/* Empty / loading state */}
           {isLoading && events.length === 0 && (
             <div
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs"
               style={{
-                background: "rgba(167,139,250,0.06)",
-                border: "1px solid rgba(167,139,250,0.15)",
+                background: "rgba(217,119,6,0.05)",
+                border: "1px solid rgba(217,119,6,0.15)",
                 fontFamily: "ui-monospace, monospace",
-                color: "#8888aa",
+                color: "#8a7560",
               }}
             >
               <ThinkingDots />
@@ -256,13 +256,13 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                   <div className="flex items-center gap-2 mb-1.5">
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px]"
-                      style={{ background: "rgba(167,139,250,0.2)", color: "#a78bfa" }}
+                      style={{ background: "rgba(217,119,6,0.15)", color: "#d97706" }}
                     >
                       ⬡
                     </div>
                     <span
                       className="text-[10px] font-semibold uppercase tracking-widest"
-                      style={{ color: "#a78bfa", fontFamily: "ui-monospace, monospace" }}
+                      style={{ color: "#d97706", fontFamily: "ui-monospace, monospace" }}
                     >
                       agent
                     </span>
@@ -270,9 +270,9 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                   <div
                     className="ml-7 rounded-2xl rounded-tl-sm px-3 py-2.5 text-xs leading-relaxed"
                     style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid #1e1e38",
-                      color: "#c4c4d4",
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid #2a2015",
+                      color: "#c4a87a",
                       whiteSpace: "pre-wrap",
                     }}
                   >
@@ -291,20 +291,20 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                       <div
                         className="rounded-xl overflow-hidden text-xs"
                         style={{
-                          border: "1px solid #1e1e38",
+                          border: "1px solid #2a2015",
                           fontFamily: "ui-monospace, monospace",
                         }}
                       >
                         <div
                           className="flex items-center justify-between px-3 py-2"
-                          style={{ background: "rgba(255,255,255,0.015)" }}
+                          style={{ background: "rgba(255,255,255,0.01)" }}
                         >
-                          <span style={{ color: "#8888aa" }}>
+                          <span style={{ color: "#8a7560" }}>
                             {TOOL_LABELS[tool.toolName] ?? tool.toolName}
                           </span>
                           <div className="flex items-center gap-1.5">
-                            <span style={{ color: "#6ee7b7", fontSize: 9 }}>✓</span>
-                            <span className="tabular-nums" style={{ color: "#8888aa" }}>
+                            <span style={{ color: "#6abf6a", fontSize: 9 }}>✓</span>
+                            <span className="tabular-nums" style={{ color: "#8a7560" }}>
                               {fmt(tool.durationMs)}
                             </span>
                           </div>
@@ -322,7 +322,7 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                     <div
                       className="rounded-xl overflow-hidden text-xs"
                       style={{
-                        border: "1px solid #1e1e38",
+                        border: "1px solid #2a2015",
                         fontFamily: "ui-monospace, monospace",
                       }}
                     >
@@ -350,16 +350,16 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                           className="flex items-center justify-between pl-5 pr-3 py-2"
                           style={{
                             borderBottom:
-                              j < event.tools.length - 1 ? "1px solid #1e1e38" : undefined,
+                              j < event.tools.length - 1 ? "1px solid #2a2015" : undefined,
                             background: "rgba(245,158,11,0.02)",
                           }}
                         >
-                          <span style={{ color: "#8888aa" }}>
+                          <span style={{ color: "#8a7560" }}>
                             {TOOL_LABELS[tool.toolName] ?? tool.toolName}
                           </span>
                           <div className="flex items-center gap-1.5">
-                            <span style={{ color: "#6ee7b7", fontSize: 9 }}>✓</span>
-                            <span className="tabular-nums" style={{ color: "#8888aa" }}>
+                            <span style={{ color: "#6abf6a", fontSize: 9 }}>✓</span>
+                            <span className="tabular-nums" style={{ color: "#8a7560" }}>
                               {fmt(tool.durationMs)}
                             </span>
                           </div>
@@ -374,14 +374,14 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
                           borderTop: "1px solid rgba(245,158,11,0.12)",
                         }}
                       >
-                        <span className="text-[10px]" style={{ color: "#8888aa" }}>
+                        <span className="text-[10px]" style={{ color: "#8a7560" }}>
                           wall time
                         </span>
                         <div className="flex items-center gap-1.5 text-[10px] tabular-nums">
                           <span style={{ color: "#f59e0b" }}>{fmt(wallTime)}</span>
                           {timeSaved > 1000 && (
                             <span
-                              className="px-1.5 py-0.5 rounded-full"
+                              className="px-1.5 py-0.5 rounded"
                               style={{
                                 background: "rgba(245,158,11,0.1)",
                                 border: "1px solid rgba(245,158,11,0.2)",
@@ -406,13 +406,13 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
               <div className="flex items-center gap-2 mb-1.5">
                 <div
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[9px]"
-                  style={{ background: "rgba(167,139,250,0.2)", color: "#a78bfa" }}
+                  style={{ background: "rgba(217,119,6,0.15)", color: "#d97706" }}
                 >
                   ⬡
                 </div>
                 <span
                   className="text-[10px] font-semibold uppercase tracking-widest"
-                  style={{ color: "#a78bfa", fontFamily: "ui-monospace, monospace" }}
+                  style={{ color: "#d97706", fontFamily: "ui-monospace, monospace" }}
                 >
                   agent
                 </span>
@@ -420,8 +420,8 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
               <div
                 className="ml-7 rounded-2xl rounded-tl-sm px-3 py-2.5 inline-flex items-center gap-2"
                 style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid #1e1e38",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid #2a2015",
                 }}
               >
                 <ThinkingDots />
@@ -434,8 +434,8 @@ export default function AgentReasoning({ events, isLoading = false }: Props) {
         <div
           className="px-4 py-3 flex-shrink-0 text-[10px] text-center"
           style={{
-            borderTop: "1px solid #1e1e38",
-            color: "#8888aa",
+            borderTop: "1px solid #2a2015",
+            color: "#8a7560",
             fontFamily: "ui-monospace, monospace",
           }}
         >

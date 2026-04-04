@@ -53,7 +53,7 @@ function renderInlineCode(line: string) {
           <code
             key={i}
             className="text-xs font-mono px-1.5 py-0.5 rounded"
-            style={{ background: "rgba(124,58,237,0.12)", color: "#c4b5fd" }}
+            style={{ background: "rgba(217,119,6,0.1)", color: "#fcd34d" }}
           >
             {part.slice(1, -1)}
           </code>
@@ -73,7 +73,7 @@ function renderTextLine(line: string, key: number) {
       <p key={key} className="text-sm leading-7">
         <code
           className="text-xs font-mono px-1.5 py-0.5 rounded"
-          style={{ background: "rgba(124,58,237,0.12)", color: "#c4b5fd" }}
+          style={{ background: "rgba(217,119,6,0.1)", color: "#fcd34d" }}
         >
           {trimmed}
         </code>
@@ -81,7 +81,7 @@ function renderTextLine(line: string, key: number) {
     );
   }
   return (
-    <p key={key} className="text-sm leading-7" style={{ color: "#b8b8cc" }}>
+    <p key={key} className="text-sm leading-7" style={{ color: "#c4a87a" }}>
       {renderInlineCode(line)}
     </p>
   );
@@ -93,13 +93,13 @@ export default function StudyGuide({ sections }: Props) {
       {sections.map((section, i) => (
         <article
           key={i}
-          className="rounded-2xl p-6"
-          style={{ background: "#10101c", border: "1px solid #1e1e38" }}
+          className="rounded-xl p-6"
+          style={{ background: "#110e09", border: "1px solid #2a2015" }}
         >
           {/* Section title */}
           <h3
             className="font-heading text-lg font-bold mb-3"
-            style={{ color: "#e8e8f0" }}
+            style={{ color: "#f0e8d8" }}
           >
             {section.title}
           </h3>
@@ -109,18 +109,18 @@ export default function StudyGuide({ sections }: Props) {
             {parseContent(section.content).map((seg, j) => {
               if (seg.type === "code") {
                 return (
-                  <div key={j} className="relative rounded-xl overflow-hidden" style={{ border: "1px solid rgba(124,58,237,0.25)" }}>
+                  <div key={j} className="relative rounded-lg overflow-hidden" style={{ border: "1px solid rgba(217,119,6,0.2)" }}>
                     {seg.lang && (
                       <span
                         className="absolute top-2 right-3 text-xs font-mono font-semibold"
-                        style={{ color: "#7c3aed" }}
+                        style={{ color: "#d97706" }}
                       >
                         {seg.lang}
                       </span>
                     )}
                     <pre
                       className="text-xs font-mono leading-6 overflow-x-auto p-4"
-                      style={{ background: "#0a0a14", color: "#c4b5fd" }}
+                      style={{ background: "#070502", color: "#fcd34d" }}
                     >
                       <code>{seg.lines.join("\n")}</code>
                     </pre>
@@ -137,10 +137,10 @@ export default function StudyGuide({ sections }: Props) {
 
           {/* Sources */}
           {section.sources && section.sources.length > 0 && (
-            <div className="my-4 pt-4" style={{ borderTop: "1px solid #1e1e38" }}>
+            <div className="my-4 pt-4" style={{ borderTop: "1px solid #2a2015" }}>
               <p
                 className="text-xs font-semibold uppercase tracking-widest mb-2"
-                style={{ color: "#6b6b88" }}
+                style={{ color: "#5a4d3e" }}
               >
                 Sources
               </p>
@@ -151,11 +151,11 @@ export default function StudyGuide({ sections }: Props) {
                     href={src.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs px-3 py-1 rounded-full transition-opacity hover:opacity-80"
+                    className="text-xs px-3 py-1 rounded transition-opacity hover:opacity-80"
                     style={{
-                      color: "#7c3aed",
-                      background: "rgba(124,58,237,0.08)",
-                      border: "1px solid rgba(124,58,237,0.2)",
+                      color: "#d97706",
+                      background: "rgba(217,119,6,0.06)",
+                      border: "1px solid rgba(217,119,6,0.2)",
                     }}
                   >
                     {src.title} ↗
@@ -168,20 +168,29 @@ export default function StudyGuide({ sections }: Props) {
           {/* Key takeaways */}
           {section.keyTakeaways.length > 0 && (
             <div
-              className="rounded-xl px-4 py-3"
-              style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.2)" }}
+              className="rounded-lg px-4 py-3"
+              style={{ background: "rgba(217,119,6,0.06)", border: "1px solid rgba(217,119,6,0.18)" }}
             >
               <p
                 className="text-xs font-semibold uppercase tracking-widest mb-2"
-                style={{ color: "#a78bfa" }}
+                style={{ color: "#d97706" }}
               >
                 Key Takeaways
               </p>
               <ul className="space-y-1.5">
                 {section.keyTakeaways.map((tip, k) => (
                   <li key={k} className="flex items-start gap-2">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "#7c3aed" }} />
-                    <span className="text-sm leading-relaxed" style={{ color: "#c4b5fd" }}>
+                    <span
+                      className="mt-1.5 flex-shrink-0"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        background: "#d97706",
+                        transform: "rotate(45deg)",
+                        display: "inline-block",
+                      }}
+                    />
+                    <span className="text-sm leading-relaxed" style={{ color: "#fcd34d" }}>
                       {tip}
                     </span>
                   </li>
