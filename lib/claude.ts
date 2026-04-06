@@ -457,8 +457,8 @@ async function callClaudeWithToolsReal(
  * Used by toolExecutor to execute individual tool prompts.
  * Set CLAUDE_MOCK=true in .env.local to skip real API calls.
  */
-export async function callClaude(prompt: string): Promise<unknown> {
-  if (process.env.CLAUDE_MOCK === "true") return callClaudeMock(prompt);
+export async function callClaude(prompt: string, useMock = false): Promise<unknown> {
+  if (process.env.CLAUDE_MOCK === "true" || useMock) return callClaudeMock(prompt);
   return callClaudeReal(prompt);
 }
 
@@ -470,8 +470,9 @@ export async function callClaude(prompt: string): Promise<unknown> {
 export async function callClaudeWithTools(
   systemPrompt: string,
   messages: ClaudeMessage[],
-  tools: readonly AgentTool[]
+  tools: readonly AgentTool[],
+  useMock = false
 ): Promise<{ content: ContentBlock[]; stop_reason: string }> {
-  if (process.env.CLAUDE_MOCK === "true") return callClaudeWithToolsMock(systemPrompt, messages, tools);
+  if (process.env.CLAUDE_MOCK === "true" || useMock) return callClaudeWithToolsMock(systemPrompt, messages, tools);
   return callClaudeWithToolsReal(systemPrompt, messages, tools);
 }

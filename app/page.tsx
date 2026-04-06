@@ -24,7 +24,8 @@ const PHASE_SEQUENCE: LoadingPhase[] = [
 
 export default function HomePage() {
   const router = useRouter();
-  const { setSourceText, setAnalysis, setMaterials, appendAgentEvents, difficulty, setDifficulty } = useApp();
+  const { setSourceText, setAnalysis, setMaterials, appendAgentEvents, difficulty, setDifficulty, useMock, setUseMock } = useApp();
+  const envMock = process.env.NEXT_PUBLIC_CLAUDE_MOCK === "true";
 
   const [tab, setTab] = useState<Tab>("topic");
   const [topicInput, setTopicInput] = useState("");
@@ -101,11 +102,12 @@ export default function HomePage() {
 
       let res: Response;
 
+      const effectiveMock = envMock || useMock;
       if (tab === "topic") {
         res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic: topicInput.trim(), difficulty }),
+          body: JSON.stringify({ topic: topicInput.trim(), difficulty, useMock: effectiveMock }),
         });
       } else if (tab === "pdf" && pdfFile) {
         const form = new FormData();
@@ -116,7 +118,7 @@ export default function HomePage() {
         res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: pastedText, difficulty }),
+          body: JSON.stringify({ text: pastedText, difficulty, useMock: effectiveMock }),
         });
       }
 
@@ -216,6 +218,28 @@ export default function HomePage() {
             boxShadow: "0 0 0 1px rgba(139,92,246,0.06), 0 24px 64px rgba(0,0,0,0.7)",
           }}
         >
+          {(envMock || useMock) ? (
+            /* ── Mock active: show locked topic block ── */
+            <div
+              className="rounded-lg px-4 py-4 flex items-center gap-3"
+              style={{ background: "rgba(139,92,246,0.07)", border: "1px solid rgba(139,92,246,0.3)" }}
+            >
+              <div
+                className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(139,92,246,0.2)" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs uppercase tracking-widest font-medium mb-0.5" style={{ color: "#7060a0" }}>Mocking topic</p>
+                <p className="text-sm font-semibold truncate" style={{ color: "#c4b5fd" }}>Python Programming Language</p>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* ── Tab nav: editorial underline style ── */}
           <div className="flex gap-1 mb-6" style={{ borderBottom: "1px solid #1e1e36" }}>
             {(["topic", "text", "pdf"] as Tab[]).map((t) => (
@@ -342,6 +366,8 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+            </>
+          )}{/* end mock/real conditional */}
 
           {/* ── Error ── */}
           {error && (
@@ -359,6 +385,75 @@ export default function HomePage() {
               </button>
             </div>
           )}
+
+          {/* ── Mock toggle ── */}
+          <div
+            className="mt-4 px-4 py-3 rounded-lg transition-all duration-200"
+            style={{
+              background: (envMock || useMock) ? "rgba(139,92,246,0.1)" : "transparent",
+              border: (envMock || useMock) ? "1px solid rgba(139,92,246,0.4)" : "1px solid #1e1e36",
+            }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span
+                    className="text-xs font-semibold uppercase tracking-widest"
+                    style={{ color: (envMock || useMock) ? "#a78bfa" : "#9090b8" }}
+                  >
+                    Mock Mode
+                  </span>
+                  {envMock && (
+                    <span
+                      className="text-xs px-1.5 py-0.5 rounded font-mono"
+                      style={{ background: "rgba(139,92,246,0.15)", color: "#8b5cf6", border: "1px solid rgba(139,92,246,0.3)" }}
+                    >
+                      env
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs leading-relaxed" style={{ color: (envMock || useMock) ? "#8070b8" : "#6060a0" }}>
+                  This app is a demo prototype running on free-tier infrastructure with limited API credits — any errors or timeouts are due to those constraints, not the agent itself. If that happens, enable Mock Mode to preview the full experience with pre-loaded sample content
+                </p>
+              </div>
+              <button
+                role="switch"
+                aria-checked={envMock || useMock}
+                disabled={envMock || loading}
+                onClick={() => {
+                  const next = !useMock;
+                  setUseMock(next);
+                  if (next) {
+                    setTab("topic");
+                    setTopicInput("Python Programming Language");
+                    setDifficulty("beginner");
+                  }
+                }}
+                className="relative flex-shrink-0 transition-opacity duration-150"
+                style={{ opacity: envMock ? 0.5 : 1 }}
+                title={envMock ? "Overridden by CLAUDE_MOCK env variable" : undefined}
+              >
+                <span
+                  className="block rounded-full transition-colors duration-200"
+                  style={{
+                    width: 40,
+                    height: 22,
+                    background: (envMock || useMock) ? "#8b5cf6" : "#1e1e36",
+                    border: "1px solid",
+                    borderColor: (envMock || useMock) ? "#8b5cf6" : "#2e2e4e",
+                  }}
+                />
+                <span
+                  className="absolute top-[3px] left-[3px] block rounded-full bg-white transition-transform duration-200"
+                  style={{
+                    width: 16,
+                    height: 16,
+                    transform: (envMock || useMock) ? "translateX(18px)" : "translateX(0)",
+                  }}
+                />
+              </button>
+            </div>
+          </div>
 
           {/* ── Transform button ── */}
           <button

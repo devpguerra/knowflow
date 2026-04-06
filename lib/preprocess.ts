@@ -161,7 +161,8 @@ export function validateTopicFast(raw: string): { valid: boolean; reason: string
  * Catches gibberish and vague inputs that pass the programmatic check.
  */
 export async function validateTopicWithModel(
-  topic: string
+  topic: string,
+  useMock = false
 ): Promise<{ valid: boolean; reason: string }> {
   const { callClaude } = await import("./claude");
   const prompt = `You are a topic quality checker for a study material generator.
@@ -184,7 +185,7 @@ Topic: "${topic}"
 Respond ONLY with valid JSON, no markdown fences:
 {"valid": true or false, "reason": "one sentence shown to the user if invalid — suggest they try a more specific topic"}`;
 
-  const result = await callClaude(prompt);
+  const result = await callClaude(prompt, useMock);
   return result as { valid: boolean; reason: string };
 }
 
@@ -194,7 +195,8 @@ Respond ONLY with valid JSON, no markdown fences:
  * Returns { valid: true } for learnable content, { valid: false, reason } for garbage.
  */
 export async function validateContent(
-  text: string
+  text: string,
+  useMock = false
 ): Promise<{ valid: boolean; reason: string }> {
   const { callClaude } = await import("./claude");
   const sample = text.slice(0, 3000);
@@ -225,6 +227,6 @@ ${sample}
 Respond ONLY with valid JSON, no markdown fences:
 {"valid": true or false, "reason": "one sentence explaining why (shown to user if invalid)"}`;
 
-  const result = await callClaude(prompt);
+  const result = await callClaude(prompt, useMock);
   return result as { valid: boolean; reason: string };
 }

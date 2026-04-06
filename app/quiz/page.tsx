@@ -21,7 +21,8 @@ function persistResult(result: QuizResult) {
 
 export default function QuizPage() {
   const router = useRouter();
-  const { materials, analysis, sourceText, quizResults, addQuizResult } = useApp();
+  const { materials, analysis, sourceText, quizResults, addQuizResult, useMock } = useApp();
+  const envMock = process.env.NEXT_PUBLIC_CLAUDE_MOCK === "true";
 
   const [result, setResult] = useState<QuizResult | null>(null);
   const [reviewLoading, setReviewLoading] = useState(false);
@@ -55,6 +56,7 @@ export default function QuizPage() {
           sourceText,
           quizResult: result,
           questions,
+          useMock: envMock || useMock,
         }),
       });
       if (!res.ok) throw new Error("Review generation failed.");
