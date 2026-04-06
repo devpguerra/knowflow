@@ -224,10 +224,10 @@ ${JSON_ONLY}`;
 
 // ── Single tool executor ───────────────────────────────────────────────────
 
-async function runTool(block: ToolUseBlock): Promise<ToolCallResult> {
+async function runTool(block: ToolUseBlock, useMock = false): Promise<ToolCallResult> {
   const start = Date.now();
   const prompt = promptFor(block);
-  const result = await callClaude(prompt);
+  const result = await callClaude(prompt, useMock);
   const durationMs = Date.now() - start;
   console.log(`[${block.name}] completed in ${durationMs}ms`);
   return {
@@ -253,18 +253,18 @@ async function runTool(block: ToolUseBlock): Promise<ToolCallResult> {
  *
  * Returns an array of ToolCallResult in the order they completed.
  */
-export async function executeToolCalls(blocks: ToolUseBlock[]): Promise<ToolCallResult[]> {
+export async function executeToolCalls(blocks: ToolUseBlock[], useMock = false): Promise<ToolCallResult[]> {
   const parallelBlocks = blocks.filter((b) => (PARALLEL_SAFE as string[]).includes(b.name));
   const sequentialBlocks = blocks.filter((b) => !(PARALLEL_SAFE as string[]).includes(b.name));
 
   // Sequential first — their results may be needed before parallel kicks off
   const sequentialResults: ToolCallResult[] = [];
   for (const block of sequentialBlocks) {
-    sequentialResults.push(await runTool(block));
+    sequentialResults.push(await runTool(block, useMock));
   }
 
   // Parallel — all fire at the same time
-  const parallelResults = await Promise.all(parallelBlocks.map(runTool));
+  const parallelResults = await Promise.all(parallelBlocks.map((b) => runTool(b, useMock)));
 
   return [...sequentialResults, ...parallelResults];
 }

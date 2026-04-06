@@ -70,7 +70,8 @@ IMPORTANT: When calling multiple generation tools (flashcards, quiz, study_guide
 async function runAgentLoop(
   systemPrompt: string,
   messages: ClaudeMessage[],
-  send: (obj: object) => void
+  send: (obj: object) => void,
+  useMock = false
 ): Promise<{ analysis: Analysis | null; materials: GeneratedMaterials; agentEvents: AgentEvent[] }> {
   const agentEvents: AgentEvent[] = [];
   const toolResultsByName: Record<string, unknown> = {};
@@ -78,7 +79,7 @@ async function runAgentLoop(
   const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
 
   for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const response = await callClaudeWithTools(systemPrompt, messages, agentTools);
+    const response = await callClaudeWithTools(systemPrompt, messages, agentTools, useMock);
 
     const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
     for (const b of textBlocks) {
@@ -95,7 +96,7 @@ async function runAgentLoop(
 
     if (toolUseBlocks.length === 0) break;
 
-    const results = await executeToolCalls(toolUseBlocks);
+    const results = await executeToolCalls(toolUseBlocks, useMock);
 
     const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
     const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
@@ -147,6 +148,7 @@ export async function POST(req: NextRequest) {
     let difficulty: string;
     let isTopic = false;
     let topicValue = "";
+    let useMock = false;
 
     if (contentType.includes("multipart/form-data")) {
       const form = await req.formData();
@@ -167,12 +169,13 @@ export async function POST(req: NextRequest) {
       const topic: string | undefined = body.topic;
       text = body.text;
       difficulty = body.difficulty ?? "intermediate";
+      useMock = body.useMock === true;
 
       if (topic !== undefined) {
         const fast = validateTopicFast(topic);
         if (!fast.valid) return NextResponse.json({ error: fast.reason }, { status: 400 });
 
-        const model = await validateTopicWithModel(topic);
+        const model = await validateTopicWithModel(topic, useMock);
         if (!model.valid) return NextResponse.json({ error: model.reason }, { status: 400 });
 
         isTopic = true;
@@ -211,7 +214,7 @@ export async function POST(req: NextRequest) {
             text = condensedText;
           }
 
-          const validation = await validateContent(text);
+          const validation = await validateContent(text, useMock);
           if (!validation.valid) {
             send({ type: "error", payload: { message: validation.reason } });
             return;
@@ -226,7 +229,7 @@ export async function POST(req: NextRequest) {
           systemPrompt = SYSTEM_PROMPT;
         }
 
-        const { analysis, materials, agentEvents } = await runAgentLoop(systemPrompt, messages, send);
+        const { analysis, materials, agentEvents } = await runAgentLoop(systemPrompt, messages, send, useMock);
         send({ type: "done", payload: { analysis, materials, agentEvents } });
       } catch (err) {
         console.error("[/api/agent]", err);

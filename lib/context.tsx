@@ -17,6 +17,8 @@ interface AppState {
   quizResults: QuizResult[];
   addQuizResult: (r: QuizResult) => void;
   resetSession: () => void;
+  useMock: boolean;
+  setUseMock: (v: boolean) => void;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -28,6 +30,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [materials, setMaterials] = useState<GeneratedMaterials | null>(null);
   const [agentEvents, setAgentEvents] = useState<AgentEvent[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResult[]>([]);
+  const [useMock, setUseMock] = useState(false);
 
   function appendAgentEvents(events: AgentEvent[]) {
     setAgentEvents((prev) => [...prev, ...events]);
@@ -62,6 +65,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         quizResults,
         addQuizResult,
         resetSession,
+        useMock,
+        setUseMock,
       }}
     >
       {children}

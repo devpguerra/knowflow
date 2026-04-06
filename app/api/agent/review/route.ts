@@ -35,10 +35,12 @@ export async function POST(req: NextRequest) {
       sourceText,
       quizResult,
       questions,
+      useMock = false,
     }: {
       sourceText: string;
       quizResult: QuizResult;
       questions: QuizQuestion[];
+      useMock?: boolean;
     } = body;
 
     if (!quizResult) {
@@ -97,7 +99,7 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
         const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
 
         for (let turn = 0; turn < MAX_TURNS; turn++) {
-          const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools);
+          const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools, useMock);
 
           const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
           for (const b of textBlocks) {
@@ -114,7 +116,7 @@ Please assess their knowledge gaps and generate appropriate review materials.`,
 
           if (toolUseBlocks.length === 0) break;
 
-          const results = await executeToolCalls(toolUseBlocks);
+          const results = await executeToolCalls(toolUseBlocks, useMock);
 
           const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
           const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
