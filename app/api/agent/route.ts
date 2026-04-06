@@ -13,58 +13,30 @@ import type {
   AgentEvent,
 } from "@/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
-async function runTopicAgent(topic: string, difficulty: string): Promise<NextResponse> {
-  const localEvents: AgentEvent[] = [];
-  const messages: ClaudeMessage[] = [
-    {
-      role: "user",
-      content: `Please generate comprehensive study materials for the topic: "${topic}"\n\nTarget difficulty: ${difficulty}\n\nRemember: you have no source document — use web_search first to gather educational context before generating anything.`,
+// ── SSE helpers ─────────────────────────────────────────────────────────────
+
+function makeSseStream() {
+  const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+  const writer = writable.getWriter();
+  const enc = new TextEncoder();
+  const send = (obj: object) => writer.write(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+  const close = () => writer.close();
+  const response = new Response(readable, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
     },
-  ];
-  const toolResultsByName: Record<string, unknown> = {};
-  let analysis: Analysis | null = null;
-  const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
-
-  for (let turn = 0; turn < MAX_TURNS; turn++) {
-    const response = await callClaudeWithTools(TOPIC_SYSTEM_PROMPT, messages, agentTools);
-    const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
-    for (const b of textBlocks) {
-      if (b.text) localEvents.push({ type: "reasoning", text: b.text as string });
-    }
-    const toolUseBlocks = (response.content as unknown[]).filter(
-      (b): b is ToolUseBlock => (b as ToolUseBlock).type === "tool_use"
-    );
-    if (toolUseBlocks.length === 0) break;
-    const results = await executeToolCalls(toolUseBlocks);
-    const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
-    const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
-    for (const r of results) {
-      toolResultsByName[r.toolName] = r.result;
-      if (r.toolName === "analyze_content") analysis = r.result as Analysis;
-    }
-    for (const r of seqResults) {
-      localEvents.push({ type: "tool_call", tools: [{ toolName: r.toolName, durationMs: r.durationMs }], parallel: false });
-    }
-    if (parResults.length > 0) {
-      localEvents.push({ type: "tool_call", tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })), parallel: parResults.length > 1 });
-    }
-    messages.push({ role: "assistant", content: response.content });
-    messages.push({ role: "user", content: toToolResultBlocks(results) });
-    if (response.stop_reason !== "tool_use") break;
-  }
-
-  const materials: GeneratedMaterials = {
-    flashcards: (toolResultsByName["generate_flashcards"] as Flashcard[] | undefined) ?? null,
-    quiz: toolResultsByName["generate_quiz"] ? { questions: toolResultsByName["generate_quiz"] as QuizQuestion[] } : null,
-    studyGuide: toolResultsByName["generate_study_guide"] ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] } : null,
-  };
-  return NextResponse.json({ analysis, materials, agentEvents: localEvents });
+  });
+  return { send, close, response };
 }
 
-const MAX_CHARS = 150_000; // absolute hard limit before preprocessing
-const SUMMARIZE_THRESHOLD = 20_000; // programmatic condensing kicks in above this
+// ── Agent loop helpers ───────────────────────────────────────────────────────
+
+const MAX_CHARS = 150_000;
+const SUMMARIZE_THRESHOLD = 20_000;
 const MAX_TURNS = 10;
 
 const TOPIC_SYSTEM_PROMPT = `You are Knowledge Transformer, an intelligent study agent. The user has provided a topic — there is NO source document. Build all study materials from web research.
@@ -95,11 +67,86 @@ Think step by step. After analyze_content, explain what you found and what you p
 
 IMPORTANT: When calling multiple generation tools (flashcards, quiz, study_guide), you may call them all in a single response. The backend will execute them in parallel.`;
 
+async function runAgentLoop(
+  systemPrompt: string,
+  messages: ClaudeMessage[],
+  send: (obj: object) => void
+): Promise<{ analysis: Analysis | null; materials: GeneratedMaterials; agentEvents: AgentEvent[] }> {
+  const agentEvents: AgentEvent[] = [];
+  const toolResultsByName: Record<string, unknown> = {};
+  let analysis: Analysis | null = null;
+  const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
+
+  for (let turn = 0; turn < MAX_TURNS; turn++) {
+    const response = await callClaudeWithTools(systemPrompt, messages, agentTools);
+
+    const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
+    for (const b of textBlocks) {
+      if (b.text) {
+        const event: AgentEvent = { type: "reasoning", text: b.text as string };
+        agentEvents.push(event);
+        send({ type: "event", payload: event });
+      }
+    }
+
+    const toolUseBlocks = (response.content as unknown[]).filter(
+      (b): b is ToolUseBlock => (b as ToolUseBlock).type === "tool_use"
+    );
+
+    if (toolUseBlocks.length === 0) break;
+
+    const results = await executeToolCalls(toolUseBlocks);
+
+    const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
+    const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
+
+    for (const r of results) {
+      toolResultsByName[r.toolName] = r.result;
+      if (r.toolName === "analyze_content") analysis = r.result as Analysis;
+    }
+
+    for (const r of seqResults) {
+      const event: AgentEvent = { type: "tool_call", tools: [{ toolName: r.toolName, durationMs: r.durationMs }], parallel: false };
+      agentEvents.push(event);
+      send({ type: "event", payload: event });
+    }
+
+    if (parResults.length > 0) {
+      const event: AgentEvent = {
+        type: "tool_call",
+        tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })),
+        parallel: parResults.length > 1,
+      };
+      agentEvents.push(event);
+      send({ type: "event", payload: event });
+    }
+
+    messages.push({ role: "assistant", content: response.content });
+    messages.push({ role: "user", content: toToolResultBlocks(results) });
+
+    if (response.stop_reason !== "tool_use") break;
+  }
+
+  const materials: GeneratedMaterials = {
+    flashcards: (toolResultsByName["generate_flashcards"] as Flashcard[] | undefined) ?? null,
+    quiz: toolResultsByName["generate_quiz"]
+      ? { questions: toolResultsByName["generate_quiz"] as QuizQuestion[] }
+      : null,
+    studyGuide: toolResultsByName["generate_study_guide"]
+      ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] }
+      : null,
+  };
+
+  return { analysis, materials, agentEvents };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const contentType = req.headers.get("content-type") ?? "";
     let text: string;
     let difficulty: string;
+    let isTopic = false;
+    let topicValue = "";
 
     if (contentType.includes("multipart/form-data")) {
       const form = await req.formData();
@@ -128,116 +175,70 @@ export async function POST(req: NextRequest) {
         const model = await validateTopicWithModel(topic);
         if (!model.valid) return NextResponse.json({ error: model.reason }, { status: 400 });
 
-        return await runTopicAgent(topic, difficulty);
-      }
-
-      if (!text) {
+        isTopic = true;
+        topicValue = topic;
+      } else if (!text) {
         return NextResponse.json({ error: "text is required." }, { status: 400 });
       }
     }
 
-    if (text.length > MAX_CHARS) {
-      console.warn(`[agent] Document truncated from ${text.length} to ${MAX_CHARS} chars (hard limit)`);
-      text = text.slice(0, MAX_CHARS);
-    }
+    // ── SSE setup ───────────────────────────────────────────────────────────
+    const { send, close, response } = makeSseStream();
 
-    if (text.length > SUMMARIZE_THRESHOLD) {
-      const { condensedText } = preprocessDocument(text, 15_000);
-      console.log(`[preprocess] Reduced ${text.length} → ${condensedText.length} chars`);
-      text = condensedText;
-    }
+    // ── Agent loop (background) ─────────────────────────────────────────────
+    (async () => {
+      try {
+        let messages: ClaudeMessage[];
+        let systemPrompt: string;
 
-    // ── Content quality gate ────────────────────────────────────────────────
-    const validation = await validateContent(text);
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.reason }, { status: 400 });
-    }
+        if (isTopic) {
+          messages = [
+            {
+              role: "user",
+              content: `Please generate comprehensive study materials for the topic: "${topicValue}"\n\nTarget difficulty: ${difficulty}\n\nRemember: you have no source document — use web_search first to gather educational context before generating anything.`,
+            },
+          ];
+          systemPrompt = TOPIC_SYSTEM_PROMPT;
+        } else {
+          if (text.length > MAX_CHARS) {
+            console.warn(`[agent] Document truncated from ${text.length} to ${MAX_CHARS} chars (hard limit)`);
+            text = text.slice(0, MAX_CHARS);
+          }
 
-    // ── Agent loop ──────────────────────────────────────────────────────────
+          if (text.length > SUMMARIZE_THRESHOLD) {
+            const { condensedText } = preprocessDocument(text, 15_000);
+            console.log(`[preprocess] Reduced ${text.length} → ${condensedText.length} chars`);
+            text = condensedText;
+          }
 
-    const messages: ClaudeMessage[] = [
-      {
-        role: "user",
-        content: `Please analyze and generate study materials for the following content at ${difficulty} difficulty level:\n\n${text}`,
-      },
-    ];
+          const validation = await validateContent(text);
+          if (!validation.valid) {
+            send({ type: "error", payload: { message: validation.reason } });
+            return;
+          }
 
-    const agentEvents: AgentEvent[] = [];
-    const toolResultsByName: Record<string, unknown> = {};
-    let analysis: Analysis | null = null;
-
-    const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
-
-    for (let turn = 0; turn < MAX_TURNS; turn++) {
-      const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools);
-
-      // Capture text blocks as reasoning events (before tool events for this turn)
-      const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
-      for (const b of textBlocks) {
-        if (b.text) agentEvents.push({ type: "reasoning", text: b.text as string });
-      }
-
-      // Find tool calls
-      const toolUseBlocks = (response.content as unknown[]).filter(
-        (b): b is ToolUseBlock => (b as ToolUseBlock).type === "tool_use"
-      );
-
-      if (toolUseBlocks.length === 0) break; // Claude is done
-
-      // Execute tools (parallel when safe)
-      const results = await executeToolCalls(toolUseBlocks);
-
-      // Collect results and build events
-      const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
-      const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
-
-      for (const r of results) {
-        toolResultsByName[r.toolName] = r.result;
-        if (r.toolName === "analyze_content") {
-          analysis = r.result as Analysis;
+          messages = [
+            {
+              role: "user",
+              content: `Please analyze and generate study materials for the following content at ${difficulty} difficulty level:\n\n${text}`,
+            },
+          ];
+          systemPrompt = SYSTEM_PROMPT;
         }
+
+        const { analysis, materials, agentEvents } = await runAgentLoop(systemPrompt, messages, send);
+        send({ type: "done", payload: { analysis, materials, agentEvents } });
+      } catch (err) {
+        console.error("[/api/agent]", err);
+        send({ type: "error", payload: { message: "Agent failed to generate study materials. Please try again." } });
+      } finally {
+        await close();
       }
+    })();
 
-      // Sequential tools → individual events
-      for (const r of seqResults) {
-        agentEvents.push({
-          type: "tool_call",
-          tools: [{ toolName: r.toolName, durationMs: r.durationMs }],
-          parallel: false,
-        });
-      }
-
-      // Parallel tools → single grouped event
-      if (parResults.length > 0) {
-        agentEvents.push({
-          type: "tool_call",
-          tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })),
-          parallel: parResults.length > 1,
-        });
-      }
-
-      // Append assistant response + tool results back to message history
-      messages.push({ role: "assistant", content: response.content });
-      messages.push({ role: "user", content: toToolResultBlocks(results) });
-
-      if (response.stop_reason !== "tool_use") break;
-    }
-
-    // ── Assemble GeneratedMaterials ─────────────────────────────────────────
-
-    const materials: GeneratedMaterials = {
-      flashcards: (toolResultsByName["generate_flashcards"] as Flashcard[] | undefined) ?? null,
-      quiz: toolResultsByName["generate_quiz"]
-        ? { questions: toolResultsByName["generate_quiz"] as QuizQuestion[] }
-        : null,
-      studyGuide: toolResultsByName["generate_study_guide"]
-        ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] }
-        : null,
-    };
-
-    return NextResponse.json({ analysis, materials, agentEvents });
+    return response;
   } catch (err) {
-    console.error("[/api/agent]", err);
+    console.error("[/api/agent] setup error", err);
     return NextResponse.json(
       { error: "Agent failed to generate study materials. Please try again." },
       { status: 500 }

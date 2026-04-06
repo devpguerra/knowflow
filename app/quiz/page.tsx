@@ -58,12 +58,29 @@ export default function QuizPage() {
         }),
       });
       if (!res.ok) throw new Error("Review generation failed.");
-      const { reviewPack, agentEvents } = await res.json() as {
-        reviewPack: ReviewPack;
-        agentEvents: AgentEvent[];
-      };
-      sessionStorage.setItem("knowflow_review_pack", JSON.stringify({ reviewPack, agentEvents }));
-      router.push("/review");
+
+      // Read SSE stream progressively
+      const reader = res.body!.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      outer: while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split("\n\n");
+        buf = lines.pop()!;
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const msg = JSON.parse(line.slice(6)) as { type: string; payload: unknown };
+          if (msg.type === "error") throw new Error((msg.payload as { message: string }).message);
+          if (msg.type === "done") {
+            const { reviewPack, agentEvents } = msg.payload as { reviewPack: ReviewPack; agentEvents: AgentEvent[] };
+            sessionStorage.setItem("knowflow_review_pack", JSON.stringify({ reviewPack, agentEvents }));
+            router.push("/review");
+            break outer;
+          }
+        }
+      }
     } catch (err) {
       console.error("[quiz/handleReview]", err);
     } finally {
