@@ -12,7 +12,7 @@ import type {
   AgentEvent,
 } from "@/types";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const MAX_TURNS = 10;
 
@@ -47,7 +47,6 @@ export async function POST(req: NextRequest) {
 
     const pct = Math.round((quizResult.score / quizResult.totalQuestions) * 100);
 
-    // Map numeric answer indices to readable text for the agent
     const wrongAnswerLines = quizResult.wrongAnswers
       .map((wa) => {
         const q = questions.find((q) => q.id === wa.questionId);
@@ -59,12 +58,9 @@ export async function POST(req: NextRequest) {
 
     const sourceExcerpt = sourceText ? sourceText.slice(0, 500) : "(no source text provided)";
 
-    // ── Agent loop ──────────────────────────────────────────────────────────
-
-    const messages: ClaudeMessage[] = [
-      {
-        role: "user",
-        content: `A student just completed a quiz. Here are the results:
+    const initialMessage: ClaudeMessage = {
+      role: "user",
+      content: `A student just completed a quiz. Here are the results:
 
 Score: ${quizResult.score}/${quizResult.totalQuestions} (${pct}%)
 
@@ -76,88 +72,110 @@ ${sourceExcerpt}${sourceText.length > 500 ? "…" : ""}
 """
 
 Please assess their knowledge gaps and generate appropriate review materials.`,
-      },
-    ];
-
-    const agentEvents: AgentEvent[] = [];
-    const toolResultsByName: Record<string, unknown> = {};
-
-    const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
-
-    for (let turn = 0; turn < MAX_TURNS; turn++) {
-      const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools);
-
-      // Capture text blocks as reasoning events (before tool events for this turn)
-      const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
-      for (const b of textBlocks) {
-        if (b.text) agentEvents.push({ type: "reasoning", text: b.text as string });
-      }
-
-      // Find tool calls
-      const toolUseBlocks = (response.content as unknown[]).filter(
-        (b): b is ToolUseBlock => (b as ToolUseBlock).type === "tool_use"
-      );
-
-      if (toolUseBlocks.length === 0) break;
-
-      const results = await executeToolCalls(toolUseBlocks);
-
-      // Collect results and build events
-      const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
-      const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
-
-      for (const r of results) {
-        toolResultsByName[r.toolName] = r.result;
-      }
-
-      // Sequential tools → individual events
-      for (const r of seqResults) {
-        agentEvents.push({
-          type: "tool_call",
-          tools: [{ toolName: r.toolName, durationMs: r.durationMs }],
-          parallel: false,
-        });
-      }
-
-      // Parallel tools → single grouped event
-      if (parResults.length > 0) {
-        agentEvents.push({
-          type: "tool_call",
-          tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })),
-          parallel: parResults.length > 1,
-        });
-      }
-
-      messages.push({ role: "assistant", content: response.content });
-      messages.push({ role: "user", content: toToolResultBlocks(results) });
-
-      if (response.stop_reason !== "tool_use") break;
-    }
-
-    // ── Assemble ReviewPack ─────────────────────────────────────────────────
-
-    const assessment: KnowledgeGapAssessment = toolResultsByName["assess_knowledge_gaps"]
-      ? (toolResultsByName["assess_knowledge_gaps"] as KnowledgeGapAssessment)
-      : {
-          weakConcepts: quizResult.missedConcepts.map((name) => ({ name, severity: "medium" as const })),
-          strategy: "Review the concepts you missed and retake the quiz.",
-          recommendedActions: ["Review missed concepts", "Retake the quiz"],
-        };
-
-    const reviewPack: ReviewPack = {
-      assessment,
-      focusedFlashcards: (toolResultsByName["generate_flashcards"] as Flashcard[] | undefined) ?? null,
-      retakeQuiz: toolResultsByName["generate_quiz"]
-        ? { questions: toolResultsByName["generate_quiz"] as QuizQuestion[] }
-        : null,
-      simplifiedGuide: toolResultsByName["generate_study_guide"]
-        ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] }
-        : null,
     };
 
-    return NextResponse.json({ reviewPack, agentEvents });
+    // ── SSE setup ───────────────────────────────────────────────────────────
+    const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+    const writer = writable.getWriter();
+    const enc = new TextEncoder();
+    const send = (obj: object) => writer.write(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+
+    const response = new Response(readable, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    });
+
+    // ── Agent loop (background) ─────────────────────────────────────────────
+    (async () => {
+      try {
+        const messages: ClaudeMessage[] = [initialMessage];
+        const agentEvents: AgentEvent[] = [];
+        const toolResultsByName: Record<string, unknown> = {};
+        const parallelSafeSet = new Set<string>(PARALLEL_SAFE);
+
+        for (let turn = 0; turn < MAX_TURNS; turn++) {
+          const response = await callClaudeWithTools(SYSTEM_PROMPT, messages, agentTools);
+
+          const textBlocks = (response.content as ContentBlock[]).filter((b) => b.type === "text");
+          for (const b of textBlocks) {
+            if (b.text) {
+              const event: AgentEvent = { type: "reasoning", text: b.text as string };
+              agentEvents.push(event);
+              send({ type: "event", payload: event });
+            }
+          }
+
+          const toolUseBlocks = (response.content as unknown[]).filter(
+            (b): b is ToolUseBlock => (b as ToolUseBlock).type === "tool_use"
+          );
+
+          if (toolUseBlocks.length === 0) break;
+
+          const results = await executeToolCalls(toolUseBlocks);
+
+          const seqResults = results.filter((r) => !parallelSafeSet.has(r.toolName));
+          const parResults = results.filter((r) => parallelSafeSet.has(r.toolName));
+
+          for (const r of results) {
+            toolResultsByName[r.toolName] = r.result;
+          }
+
+          for (const r of seqResults) {
+            const event: AgentEvent = { type: "tool_call", tools: [{ toolName: r.toolName, durationMs: r.durationMs }], parallel: false };
+            agentEvents.push(event);
+            send({ type: "event", payload: event });
+          }
+
+          if (parResults.length > 0) {
+            const event: AgentEvent = {
+              type: "tool_call",
+              tools: parResults.map((r) => ({ toolName: r.toolName, durationMs: r.durationMs })),
+              parallel: parResults.length > 1,
+            };
+            agentEvents.push(event);
+            send({ type: "event", payload: event });
+          }
+
+          messages.push({ role: "assistant", content: response.content });
+          messages.push({ role: "user", content: toToolResultBlocks(results) });
+
+          if (response.stop_reason !== "tool_use") break;
+        }
+
+        const assessment: KnowledgeGapAssessment = toolResultsByName["assess_knowledge_gaps"]
+          ? (toolResultsByName["assess_knowledge_gaps"] as KnowledgeGapAssessment)
+          : {
+              weakConcepts: quizResult.missedConcepts.map((name) => ({ name, severity: "medium" as const })),
+              strategy: "Review the concepts you missed and retake the quiz.",
+              recommendedActions: ["Review missed concepts", "Retake the quiz"],
+            };
+
+        const reviewPack: ReviewPack = {
+          assessment,
+          focusedFlashcards: (toolResultsByName["generate_flashcards"] as Flashcard[] | undefined) ?? null,
+          retakeQuiz: toolResultsByName["generate_quiz"]
+            ? { questions: toolResultsByName["generate_quiz"] as QuizQuestion[] }
+            : null,
+          simplifiedGuide: toolResultsByName["generate_study_guide"]
+            ? { sections: toolResultsByName["generate_study_guide"] as StudyGuideSection[] }
+            : null,
+        };
+
+        send({ type: "done", payload: { reviewPack, agentEvents } });
+      } catch (err) {
+        console.error("[/api/agent/review]", err);
+        send({ type: "error", payload: { message: "Review agent failed. Please try again." } });
+      } finally {
+        await writer.close();
+      }
+    })();
+
+    return response;
   } catch (err) {
-    console.error("[/api/agent/review]", err);
+    console.error("[/api/agent/review] setup error", err);
     return NextResponse.json(
       { error: "Review agent failed. Please try again." },
       { status: 500 }

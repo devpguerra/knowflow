@@ -121,18 +121,36 @@ export default function HomePage() {
       }
 
       if (!res.ok) throw new Error((await res.json()).error ?? "Agent failed.");
-      const { analysis, materials, agentEvents } = await res.json() as { analysis: Analysis; materials: GeneratedMaterials; agentEvents: AgentEvent[] };
 
-      setAnalysis(analysis);
-      setMaterials(materials);
-      appendAgentEvents(agentEvents ?? []);
-      setSourceText(
-        tab === "topic" ? topicInput.trim() :
-        tab === "text"  ? pastedText :
-        (pdfFile?.name ?? "")
-      );
-
-      router.push("/materials");
+      // Read SSE stream progressively
+      const reader = res.body!.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      outer: while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split("\n\n");
+        buf = lines.pop()!;
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const msg = JSON.parse(line.slice(6)) as { type: string; payload: unknown };
+          if (msg.type === "event") appendAgentEvents([msg.payload as AgentEvent]);
+          if (msg.type === "error") throw new Error((msg.payload as { message: string }).message);
+          if (msg.type === "done") {
+            const { analysis, materials } = msg.payload as { analysis: Analysis; materials: GeneratedMaterials };
+            setAnalysis(analysis);
+            setMaterials(materials);
+            setSourceText(
+              tab === "topic" ? topicInput.trim() :
+              tab === "text"  ? pastedText :
+              (pdfFile?.name ?? "")
+            );
+            router.push("/materials");
+            break outer;
+          }
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
